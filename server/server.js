@@ -1,25 +1,26 @@
-import express from "express";
-import "dotenv/config";
-import cors from "cors";
-import connectDB from "./Configs/db.js";
-import userRouter from "./routes/userRoutes.js";
+import express from "express"
+import dotenv from "dotenv"
+import cors from "cors"
+import connectDB from "./configs/db.js"
+import userRouter from "./routes/userRoutes.js"
+import ownerRouter from "./routes/ownerRoutes.js"
 
-
-// Initialize Express App
-
+// Initialize express app
 const app = express()
-
-//Connect DataBase
 await connectDB()
+dotenv.config();
 
-//Middleware
+// Middleware
+app.use(cors())
+app.use(express.json())
 
-app.use(cors());
-app.use(express.json());
-
-app.get('/', (req , res)=> res.send("Server is running"))
-app.use('/api/user' , userRouter)
+app.get("/" , (req , res) => {
+    res.send("Hello")
+})
+app.use("/api/user" ,  userRouter);
+app.use("/api/owner" , ownerRouter)
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT , ()=> console.log(`Server running on port ${PORT}`))
+app.listen( PORT || 3000 , () => {
+    console.log(`Server running on ${PORT} port`)
+})
