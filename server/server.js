@@ -1,5 +1,5 @@
 import express from "express"
-import dotenv from "dotenv"
+import "dotenv/config"
 import cors from "cors"
 import connectDB from "./configs/db.js"
 import userRouter from "./routes/userRoutes.js"
@@ -8,7 +8,7 @@ import ownerRouter from "./routes/ownerRoutes.js"
 // Initialize express app
 const app = express()
 await connectDB()
-dotenv.config();
+// dotenv.config();
 
 // Middleware
 app.use(cors())
