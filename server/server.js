@@ -16,7 +16,7 @@ app.use(cors())
 app.use(express.json())
 
 app.get("/" , (req , res) => {
-    res.send("Hello")
+    res.send("")
 })
 app.use("/api/user" ,  userRouter);
 app.use("/api/owner" , ownerRouter)

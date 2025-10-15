@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { assets, dummyDashboardData } from "../../assets/assets";
 import Title from "../../components/owner/Title";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
 
-  const currency = import.meta.env.VITE_CURRENCY;
+  const {axios , isOwner , currency} = useAppContext() 
+
+  // const currency = import.meta.env.VITE_CURRENCY;
 
   const [data, setData] = useState({
     totalCars: 0,
@@ -34,9 +38,26 @@ const Dashboard = () => {
     },
   ];
 
+  const fetchDashboardData = async () => {
+    try {
+      const {data} = await axios.get("/api/owner/deshboard")
+      if (data.success){
+        setData(data.deshboardData)
+      }
+      else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
   useEffect(() => {
-    setData(dummyDashboardData);
-  }, []);
+    if (isOwner){
+      fetchDashboardData()
+    }
+    // setData(dummyDashboardData);
+  }, [isOwner]);
 
   return (
     <div className="px-4 pt-10 md:px-10 flex-l">
