@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    name : {
+   fullname : {
         type : String,
-        required : true,
+        required : true
     },
     email : {
         type : String,
@@ -14,15 +14,35 @@ const userSchema = new mongoose.Schema({
         type : String,
         required : true,
     },
+    isVerified : {
+        type : Boolean,
+        default : false
+    },
+    image : {
+        type : String,
+    },
+    lastLogin : {
+        type : Date,
+        default : Date.now()
+    },
+    descripition : {
+        type : String,
+        // required : true,
+        default : "Hey ! i am using Chatify"
+    },
     role: {
-    type: String,
-    enum: ["admin", "user", "member"], // ✅ added member
-    default: "member"
-  },
+        type: String,
+        enum: ["admin", "user", "member"], // ✅ added member
+        default: "member"
+    },
     image : {
         type : String,
         default : '',
     },
+    passwordResetToken : String,
+    passwordResetTokenExpiresAt : Date,
+    verificationToken : String,
+    verificationTokenExpiresAt: Date,
     
 } , {timestamps : true})
 

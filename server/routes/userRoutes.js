@@ -1,12 +1,22 @@
-import express from "express"
-import { getCars, getUserData, loginUser, registerUser } from "../controllers/userController.js";
-import { protect } from "../middleware/auth.js";
+import express from "express";
+import {
+  getCars,
+  getUserData,
+  login,
+  signup,
+  logout,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+} from "../controllers/userController.js";
 
-const userRouter = express.Router();
+const authRouter = express.Router();
 
-userRouter.post("/register" , registerUser)
-userRouter.post("/login" , loginUser)
-userRouter.get("/data" , protect, getUserData)
-userRouter.get("/cars" , getCars)
+authRouter.post("/signup", signup);
+authRouter.post("/login", login);
+authRouter.post("/verifyEmail", verifyEmail);
+authRouter.post("/forgot-password", forgotPassword);
+authRouter.get("/logout", logout);
+authRouter.post("/reset-password/:token", resetPassword);
 
-export default userRouter;
+export default authRouter;

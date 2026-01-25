@@ -1,12 +1,12 @@
 import ImageKit from "@imagekit/nodejs";
 import path, { format } from "path";
-import imageKit from "../configs/imageKit.js";
+import imageKit, { uploadOnCloudinary } from "../configs/imageKit.js";
 import User from "../models/user.model.js";
 import fs from "fs";
 import { URLEndpoints } from "@imagekit/nodejs/resources/accounts/url-endpoints.mjs";
 import Car from "../models/car.model.js";
 import Booking from "../models/Booking.model.js";
-// import { ImageKit } from "@imagekit/nodejs/client";
+
 
 export const changeRoleToOwner = async (req, res) => {
   try {
@@ -21,69 +21,24 @@ export const changeRoleToOwner = async (req, res) => {
   }
 };
 
-// API to list car
 
 export const addCar = async (req, res) => {
   try {
-    const client = new ImageKit({
-      privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-    });
-
     const { _id } = req.user;
     let car = JSON.parse(req.body.carData);
     const imageFile = req.file;
 
-    const fileBuffer = fs.readFileSync(imageFile.path);
-    const response = (imageKit.FileUploadParams = {
-      file: fileBuffer,
-      fileName: imageFile.originalname,
-      folder: "/cars",
-    });
+    console.log(_id)
+    console.log(car)    
+    console.log(imageFile)
 
-    const optimizedImageUrl = client.helper.buildSrc({
-      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-      src: imageFile.originalname,
-      path : response.filePath,
-      transformation : [
-        {width : '1280'},
-        {quality : 'auto'},
-        {format : 'webp'},
-      ]
-    });
-
-    const image = optimizedImageUrl;
-
-    if (!image) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Image is Required" });
-    }
-    await Car.create({ ...car, owner: _id, image });
-    res.status(200).json({ success: true, message: "Car Added" });
-  } catch (error) {
-    console.log("Error in addcar function : ", error.message);
-    return res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-// export const addCar = async (req, res) => {
-//   try {
-//     const { _id } = req.user;
-//     let car = JSON.parse(req.body.carData);
-//     const imageFile = req.file;
-
-//     // upload image to imagekit
 //     const fileBuffer = fs.readFileSync(imageFile.path);
 //     const response =  imageKit.FileUploadParams = {
 //       file: fileBuffer,
 //       fileName: imageFile.originalname,
 //       folder : '/cars'
 //     };
-//     // const response = await imageKit.upload( {
-//     //   file: fileBuffer,
-//     //   fileName: imageFile.originalname,
-//     //   folder : '/cars'
-//     // });
+// ;
 
 //     var optimizedImageUrl = imageKit.helper.buildSrc({
 //       path : response.filepath,
@@ -94,34 +49,41 @@ export const addCar = async (req, res) => {
 //       ]
 //     });
 
-//     const image = optimizedImageUrl;
 
-//     if (!image){
-//       return res.status(400).json({success : false , message : "Image is Required"})
-//     }
-//     await Car.create({...car , owner : _id , image})
-//     res.status(200).json({success : true , message : "Car Added"})
-//   } catch (error) {
-//     console.log("Error in addcar function : ", error.message);
-//     return res.status(400).json({ success: false, message: error.message });
-//   }
-// };
+    let image;
+    if (imageFile){
+      image = await uploadOnCloudinary(req.file.path)
+    }
+
+
+    // const image = optimizedImageUrl;
+
+    if (!image){
+      return res.status(400).json({success : false , message : "Image is Required"})
+    }
+    await Car.create({...car , owner : _id , image})
+    res.status(200).json({success : true , message : "Car Added"})
+  } catch (error) {
+    console.log("Error in addcar function : ", error.message);
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
 
 export const getOwnerCars = async (req, res) => {
   try {
     const { _id } = req.user;
     const cars = await Car.find({ owner: _id });
-    res.send(200).json({
+    res.status(200).json({
       success: true,
       cars,
     });
   } catch (error) {
-    console.log("Error in getowner function : ", error.message);
+    console.log("Error in getOwnerCars function : ", error.message);
     return res.status(400).json({ success: false, message: error.message });
   }
 };
 
-// api to toggle car availability
+
 
 export const toggleCarAvailability = async (req, res) => {
   try {
@@ -147,13 +109,13 @@ export const toggleCarAvailability = async (req, res) => {
   }
 };
 
-// api to delete car
+
 
 export const deleteCar = async (req, res) => {
   try {
     const { _id } = req.user;
     const { carId } = req.body;
-    const car = await Car.find(carId);
+    const car = await Car.findById(carId);
 
     // check car is belongs to the user
     if (car.owner.toString() !== _id.toString()) {
@@ -218,7 +180,6 @@ export const getDeshboardData = async (req, res) => {
   }
 };
 
-// API to update image
 
 export const updateUserImage = async (req, res) => {
   try {
@@ -226,25 +187,31 @@ export const updateUserImage = async (req, res) => {
 
     const imageFile = req.file;
 
-    const fileBuffer = fs.readFileSync(imageFile.path);
-    const response = (imageKit.FileUploadParams = {
-      file: fileBuffer,
-      fileName: imageFile.originalname,
-      folder: "/cars",
-    });
+    // const fileBuffer = fs.readFileSync(imageFile.path);
+    // const response = (imageKit.FileUploadParams = {
+    //   file: fileBuffer,
+    //   fileName: imageFile.originalname,
+    //   folder: "/cars",
+    // });
 
-    const optimizedImageUrl = client.helper.buildSrc({
-      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-      src: imageFile.originalname,
-      path : response.filePath,
-      transformation : [
-        {width : '400'},
-        {quality : 'auto'},
-        {format : 'webp'}
-      ]
-    });
+    // const optimizedImageUrl = client.helper.buildSrc({
+    //   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+    //   src: imageFile.originalname,
+    //   path : response.filePath,
+    //   transformation : [
+    //     {width : '400'},
+    //     {quality : 'auto'},
+    //     {format : 'webp'}
+    //   ]
+    // });
 
-    const image = optimizedImageUrl;
+    let image;
+
+    if (imageFile){
+      image = await uploadOnCloudinary(imageFile.path)
+    }
+
+    
     await User.findByIdAndUpdate(_id , {image})
     res.status(200).json({seccess : true , message : "Image Updated"})
   } catch (error) {

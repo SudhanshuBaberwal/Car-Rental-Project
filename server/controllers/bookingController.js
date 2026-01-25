@@ -1,7 +1,6 @@
 import Booking from "../models/Booking.model.js";
 import Car from "../models/car.model.js";
 
-// function to check availability of car for a given date
 
 export const checkAvailability = async (car, pickupDate, returnDate) => {
   const booking = await Booking.find({
@@ -12,7 +11,6 @@ export const checkAvailability = async (car, pickupDate, returnDate) => {
   return booking.length === 0;
 };
 
-// api to check availability of cars for the given date and location
 
 export const checkAvailabilityOfCar = async (req, res) => {
   try {
@@ -84,7 +82,7 @@ export const getUserBookings = async (req, res) => {
       .populate("car")
       .sort({ createdAt: -1 });
 
-    res.status(200).json({ success: ture });
+    res.status(200).json({ success: true , bookings });
   } catch (error) {
     console.log("Error in getUsersBookings function", error.message);
     return res.status(400).json({ success: false, message: error.message });
@@ -101,13 +99,13 @@ export const getOwnerBookings = async (req, res) => {
         .json({ success: false, message: "Not Authorized" });
     }
 
-    const bookings = (await Booking.find({ owner: req.user._id }))
+    const bookings = await Booking.find({ owner: req.user._id })
       .populate("car user")
       .select("-user.password")
       .sort({ createdAt: -1 });
-    res.status(200).json({ success: ture, bookings });
+    res.status(200).json({ success: true, bookings });
   } catch (error) {
-    console.log("Error in checkavailabilityofcar function", error.message);
+    console.log("Error in getOwnerBookings function", error.message);
     return res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -127,7 +125,7 @@ export const changeBookingStatus = async (req , res) => {
         await booking.save()
         return res.status(200).json({success : true , message : "Stauts Updated"})
     } catch (error) {
-        console.log("Error in changeBookingstatus function" , error.message)
+        console.log("Error in getOwnerBookings function" , error.message)
         return res.status(400).json({success : false , message : error.message})
     }
 }

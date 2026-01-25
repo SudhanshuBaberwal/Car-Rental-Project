@@ -1,16 +1,16 @@
 import express from "express"
-import { protect } from "../middleware/auth.js";
+import isAuth from "../middleware/auth.js";
 import { addCar, changeRoleToOwner, deleteCar, getDeshboardData, getOwnerCars, toggleCarAvailability, updateUserImage } from "../controllers/ownerController.js";
 import upload from "../middleware/multer.js";
 
 const ownerRouter = express.Router();
 
-ownerRouter.post("/change-role" , protect, changeRoleToOwner)
-ownerRouter.post("/add-car" , upload.single("image"), protect ,  addCar)
-ownerRouter.get("/cars" , protect ,  getOwnerCars)
-ownerRouter.post("/toggle-car" , protect ,  toggleCarAvailability)
-ownerRouter.post("/delete-car" , protect ,  deleteCar)
+ownerRouter.post("/change-role" , isAuth, changeRoleToOwner)
+ownerRouter.post("/add-car" , isAuth, upload.single("image"),  addCar)
+ownerRouter.get("/cars" , isAuth ,  getOwnerCars)
+ownerRouter.post("/toggle-car" , isAuth ,  toggleCarAvailability)
+ownerRouter.post("/delete-car" , isAuth ,  deleteCar)
 
-ownerRouter.get("/deshboard" , protect , getDeshboardData)
-ownerRouter.post("/update-image" , upload.single("image") , protect , updateUserImage)
+ownerRouter.get("/deshboard" , isAuth , getDeshboardData)
+ownerRouter.post("/update-image" , upload.single("image") , isAuth , updateUserImage)
 export default ownerRouter;

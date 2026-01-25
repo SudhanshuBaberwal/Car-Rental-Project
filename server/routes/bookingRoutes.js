@@ -1,13 +1,13 @@
 import express from "express"
 import { changeBookingStatus, checkAvailability, createBooking, getOwnerBookings, getUserBookings } from "../controllers/bookingController.js";
-import { protect } from "../middleware/auth.js";
+import isAuth from "../middleware/auth.js";
 
 const bookingRouter = express.Router();
 
 bookingRouter.post("/check-availability" , checkAvailability)
-bookingRouter.post("/create" , protect , createBooking)
-bookingRouter.get("/user" , protect , getUserBookings)
-bookingRouter.get("/owner" , protect , getOwnerBookings)
-bookingRouter.post("/change-status" , protect , changeBookingStatus)
+bookingRouter.post("/create" , isAuth , createBooking)
+bookingRouter.get("/user" , isAuth , getUserBookings)
+bookingRouter.get("/owner" , isAuth , getOwnerBookings)
+bookingRouter.post("/change-status" , isAuth , changeBookingStatus)
 
 export default bookingRouter;
