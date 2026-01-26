@@ -5,6 +5,8 @@ import connectDB from "./configs/db.js"
 import ownerRouter from "./routes/ownerRoutes.js"
 import bookingRouter from "./routes/bookingRoutes.js"
 import authRouter from "./routes/userRoutes.js"
+import { configDotenv } from "dotenv"
+import cookieParser from "cookie-parser";
 
 // Initialize express app
 const app = express()
@@ -13,6 +15,7 @@ const app = express()
 // Middleware
 app.use(cors())
 app.use(express.json())
+app.use(cookieParser())
 
 app.use("/api/user" ,  authRouter);
 app.use("/api/owner" , ownerRouter)

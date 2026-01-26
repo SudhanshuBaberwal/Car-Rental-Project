@@ -1,17 +1,12 @@
-import ImageKit from "@imagekit/nodejs";
-import path, { format } from "path";
-import imageKit, { uploadOnCloudinary } from "../configs/imageKit.js";
+import  { uploadOnCloudinary } from "../configs/imageKit.js";
 import User from "../models/user.model.js";
-import fs from "fs";
-import { URLEndpoints } from "@imagekit/nodejs/resources/accounts/url-endpoints.mjs";
 import Car from "../models/car.model.js";
 import Booking from "../models/Booking.model.js";
 
-
 export const changeRoleToOwner = async (req, res) => {
   try {
-    const { _id } = req.user;
-    await User.findByIdAndUpdate(_id, {
+    const { id } = req.id;
+    await User.findByIdAndUpdate(id, {
       role: "owner",
     });
     res.status(200).json({ success: true, message: "Now you can list cars" });
@@ -21,48 +16,35 @@ export const changeRoleToOwner = async (req, res) => {
   }
 };
 
-
 export const addCar = async (req, res) => {
   try {
-    const { _id } = req.user;
+    const  _id  = req.id;
+    if (!req.body.carData) {
+      return res.status(400).json({
+        success: false,
+        message: "Car data is required",
+      });
+    }
+
     let car = JSON.parse(req.body.carData);
     const imageFile = req.file;
 
-    console.log(_id)
-    console.log(car)    
-    console.log(imageFile)
-
-//     const fileBuffer = fs.readFileSync(imageFile.path);
-//     const response =  imageKit.FileUploadParams = {
-//       file: fileBuffer,
-//       fileName: imageFile.originalname,
-//       folder : '/cars'
-//     };
-// ;
-
-//     var optimizedImageUrl = imageKit.helper.buildSrc({
-//       path : response.filepath,
-//       transformation : [
-//         {width : '1280'},
-//         {quality : 'auto'},
-//         {format : 'webp'}
-//       ]
-//     });
-
+    console.log(_id);
+    // console.log(car);
+    // console.log(imageFile);
 
     let image;
-    if (imageFile){
-      image = await uploadOnCloudinary(req.file.path)
+    if (imageFile) {
+      image = await uploadOnCloudinary(req.file.path);
     }
 
-
-    // const image = optimizedImageUrl;
-
-    if (!image){
-      return res.status(400).json({success : false , message : "Image is Required"})
+    if (!image) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Image is Required" });
     }
-    await Car.create({...car , owner : _id , image})
-    res.status(200).json({success : true , message : "Car Added"})
+    await Car.create({ ...car, owner: _id, image });
+    res.status(200).json({ success: true, message: "Car Added" });
   } catch (error) {
     console.log("Error in addcar function : ", error.message);
     return res.status(400).json({ success: false, message: error.message });
@@ -71,7 +53,7 @@ export const addCar = async (req, res) => {
 
 export const getOwnerCars = async (req, res) => {
   try {
-    const { _id } = req.user;
+    const { _id } = req.id;
     const cars = await Car.find({ owner: _id });
     res.status(200).json({
       success: true,
@@ -83,13 +65,12 @@ export const getOwnerCars = async (req, res) => {
   }
 };
 
-
-
 export const toggleCarAvailability = async (req, res) => {
   try {
-    const { _id } = req.user;
+    const  _id  = req.id;
     const { carId } = req.body;
     const car = await Car.findById(carId);
+    console.log(_id)
 
     // checking is car belong to the user
     if (car.owner.toString() !== _id.toString()) {
@@ -109,13 +90,12 @@ export const toggleCarAvailability = async (req, res) => {
   }
 };
 
-
-
 export const deleteCar = async (req, res) => {
   try {
-    const { _id } = req.user;
+    const  _id  = req.id;
     const { carId } = req.body;
     const car = await Car.findById(carId);
+    // console.log(car)
 
     // check car is belongs to the user
     if (car.owner.toString() !== _id.toString()) {
@@ -127,6 +107,7 @@ export const deleteCar = async (req, res) => {
 
     car.owner = null;
     car.isAvaliable = false;
+    console.log(car)
 
     res.status(200).json({
       success: true,
@@ -180,7 +161,6 @@ export const getDeshboardData = async (req, res) => {
   }
 };
 
-
 export const updateUserImage = async (req, res) => {
   try {
     const { _id } = req.user;
@@ -207,13 +187,12 @@ export const updateUserImage = async (req, res) => {
 
     let image;
 
-    if (imageFile){
-      image = await uploadOnCloudinary(imageFile.path)
+    if (imageFile) {
+      image = await uploadOnCloudinary(imageFile.path);
     }
 
-    
-    await User.findByIdAndUpdate(_id , {image})
-    res.status(200).json({seccess : true , message : "Image Updated"})
+    await User.findByIdAndUpdate(_id, { image });
+    res.status(200).json({ seccess: true, message: "Image Updated" });
   } catch (error) {
     console.log("Error in updateUserImage function", error.message);
     return res.status(400).json({ success: false, message: error.message });
