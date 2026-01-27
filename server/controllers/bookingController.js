@@ -1,5 +1,6 @@
 import Booking from "../models/Booking.model.js";
 import Car from "../models/car.model.js";
+import User from "../models/user.model.js"
 
 
 export const checkAvailability = async (car, pickupDate, returnDate) => {
@@ -43,7 +44,7 @@ export const checkAvailabilityOfCar = async (req, res) => {
 
 export const createBooking = async (req, res) => {
   try {
-    const { _id } = req.user;
+    const _id  = req.id;
     const { car, pickupDate, returnDate } = req.body;
     const isAvailable = await checkAvailability(car, pickupDate, returnDate);
     if (!isAvailable) {
@@ -53,6 +54,7 @@ export const createBooking = async (req, res) => {
     }
 
     const carData = await Car.findById(car);
+    console.log(carData)
 
     // calculate price based on pickup and return date
     const picked = new Date(pickupDate);
@@ -77,7 +79,7 @@ export const createBooking = async (req, res) => {
 
 export const getUserBookings = async (req, res) => {
   try {
-    const { _id } = req.user;
+    const _id = req.id;
     const bookings = await Booking.find({ user: _id })
       .populate("car")
       .sort({ createdAt: -1 });
@@ -93,13 +95,16 @@ export const getUserBookings = async (req, res) => {
 
 export const getOwnerBookings = async (req, res) => {
   try {
-    if (req.user.role !== "owner") {
+    const id = req.id;
+    const u = await User.findById(id)
+    const role = u.role;
+    if (role !== "owner") {
       return res
         .status(400)
         .json({ success: false, message: "Not Authorized" });
     }
 
-    const bookings = await Booking.find({ owner: req.user._id })
+    const bookings = await Booking.find({ owner: id })
       .populate("car user")
       .select("-user.password")
       .sort({ createdAt: -1 });
@@ -113,11 +118,13 @@ export const getOwnerBookings = async (req, res) => {
 // API to change to change booking status
 export const changeBookingStatus = async (req , res) => {
     try {
-        const {_id} = req.user;
+        const id = req.id;
         const {bookingId , status} = req.body;
+        console.log(bookingId)
         const booking = await Booking.findById(bookingId)
+        console.log(booking)
 
-        if (!booking.owner.toString() !== _id.toString()){
+        if (booking.owner.toString() !== id.toString()){
             return res.status(400).json({success : false , message : "Not authorized"})
         }
 
