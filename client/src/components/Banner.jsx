@@ -2,8 +2,6 @@ import React from "react";
 import { assets } from "../assets/assets";
 import {motion} from "motion/react"
 
-
-
 const Banner = () => {
   return (
     <motion.div initial={{ y: 50, opacity: 0 }}

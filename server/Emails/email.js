@@ -10,13 +10,13 @@ export const verificationEmail = async (userEmail, code) => {
       html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", code),
       category: "Email Verification",
     });
-    transporter.verify((err) => {
-      if (err) {
-        console.error("Brevo SMTP ERROR ❌", err);
-      } else {
-        console.log("Brevo SMTP READY ✅");
-      }
-    });
+    // transporter.verify((err) => {
+    //   if (err) {
+    //     console.error("Brevo SMTP ERROR ❌", err);
+    //   } else {
+    //     console.log("Brevo SMTP READY ✅");
+    //   }
+    // });
 
     console.log("Email sent successfully", mailOptions);
   } catch (error) {

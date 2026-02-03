@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Title from "./Title";
 import { assets } from "../assets/assets";
 import CarCard from "./CarCard";
@@ -8,7 +8,8 @@ import { motion } from "motion/react";
 
 const FeatureSection = () => {
   const navigate = useNavigate();
-  const { cars } = useAppContext();
+  // const { cars } = useAppContext();
+  const cars = []
 
   return (
     <motion.div

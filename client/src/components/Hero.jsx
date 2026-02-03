@@ -2,12 +2,19 @@ import React, { useState } from "react";
 import { assets, cityList } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import { delay, motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const [pickUpLocation, setPickUpLocation] = useState("");
 
-  const { pickupDate, navigate, setPickupDate, returnDate, setReturenDate } =
-    useAppContext();
+  // const { pickupDate, navigate, setPickupDate, returnDate, setReturenDate } =
+  //   useAppContext();
+
+    const navigate = useNavigate()
+
+    const [pickupDate , setPickupDate] = useState("")
+    const [returnDate ,setReturenDate] = useState("")
+
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(

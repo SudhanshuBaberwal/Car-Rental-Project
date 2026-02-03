@@ -1,304 +1,398 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useAppContext } from "../context/AppContext";
-import toast from "react-hot-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import gsap from "gsap";
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { gsap } from "gsap";
+import { useNavigate, Link } from "react-router-dom"; // Ensure react-router-dom is installed
+import toast, { Toaster } from "react-hot-toast";
+import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
 
-// --- Left Side: Interactive Art Component ---
-const ArtisticBackground = () => {
-  const containerRef = useRef(null);
-  const shapesRef = useRef([]);
+// --- Components ---
+
+const ModernInput = ({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+}) => {
+  const inputRef = useRef(null);
+  const lineRef = useRef(null);
+  const labelRef = useRef(null);
+
+  const onFocus = () => {
+    gsap.to(lineRef.current, {
+      width: "100%",
+      duration: 0.8,
+      ease: "expo.out",
+    });
+    gsap.to(labelRef.current, { y: -5, color: "#22d3ee", duration: 0.4 });
+    gsap.to(inputRef.current, {
+      x: 10,
+      backgroundColor: "rgba(255,255,255,0.03)",
+      duration: 0.4,
+    });
+  };
+
+  const onBlur = () => {
+    gsap.to(lineRef.current, { width: "0%", duration: 0.6, ease: "power2.in" });
+    if (!value) {
+      gsap.to(labelRef.current, {
+        y: 0,
+        color: "rgba(255,255,255,0.3)",
+        duration: 0.4,
+      });
+    }
+    gsap.to(inputRef.current, {
+      x: 0,
+      backgroundColor: "rgba(255,255,255,0.01)",
+      duration: 0.4,
+    });
+  };
+
+  return (
+    <div className="group relative w-full mb-8">
+      <label
+        ref={labelRef}
+        className="block text-[10px] uppercase tracking-[0.3em] text-white/30 font-bold mb-2 ml-1 transition-all"
+      >
+        {label}
+      </label>
+      <div className="relative overflow-hidden rounded-lg">
+        <input
+          ref={inputRef}
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          className="w-full bg-white/[0.01] border border-white/5 px-4 py-4 text-sm text-white outline-none transition-all placeholder:text-white/5"
+        />
+        <div
+          ref={lineRef}
+          className="absolute bottom-0 left-0 h-[2px] w-0 bg-cyan-400"
+        />
+      </div>
+    </div>
+  );
+};
+
+const PasswordInput = ({ label, value, onChange, placeholder }) => {
+  const [show, setShow] = useState(false);
+  const inputRef = useRef(null);
+  const lineRef = useRef(null);
+  const labelRef = useRef(null);
+
+  const onFocus = () => {
+    gsap.to(lineRef.current, {
+      width: "100%",
+      duration: 0.8,
+      ease: "expo.out",
+    });
+    gsap.to(labelRef.current, { y: -5, color: "#22d3ee", duration: 0.4 });
+    gsap.to(inputRef.current, {
+      x: 10,
+      backgroundColor: "rgba(255,255,255,0.03)",
+      duration: 0.4,
+    });
+  };
+
+  const onBlur = () => {
+    gsap.to(lineRef.current, { width: "0%", duration: 0.6, ease: "power2.in" });
+    if (!value) {
+      gsap.to(labelRef.current, {
+        y: 0,
+        color: "rgba(255,255,255,0.3)",
+        duration: 0.4,
+      });
+    }
+    gsap.to(inputRef.current, {
+      x: 0,
+      backgroundColor: "rgba(255,255,255,0.01)",
+      duration: 0.4,
+    });
+  };
+
+  return (
+    <div className="group relative w-full mb-6">
+      <label
+        ref={labelRef}
+        className="block text-[10px] uppercase tracking-[0.3em] text-white/30 font-bold mb-2 ml-1 transition-all"
+      >
+        {label}
+      </label>
+      <div className="relative overflow-hidden rounded-lg flex items-center">
+        <input
+          ref={inputRef}
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          className="w-full bg-white/[0.01] border border-white/5 px-4 py-4 text-sm text-white outline-none transition-all placeholder:text-white/5 pr-12"
+        />
+        <button
+          type="button"
+          onClick={() => setShow(!show)}
+          className="absolute right-4 text-white/30 hover:text-cyan-400 transition-colors z-20"
+        >
+          {show ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+        <div
+          ref={lineRef}
+          className="absolute bottom-0 left-0 h-[2px] w-0 bg-cyan-400"
+        />
+      </div>
+    </div>
+  );
+};
+
+// --- Main Page ---
+
+export default function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const mainRef = useRef(null);
+  const sidePanelRef = useRef(null);
+  const formBoxRef = useRef(null);
+  const cursorRef = useRef(null);
+  const particlesRef = useRef(null);
+
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Mouse move effect
-      const onMouseMove = (e) => {
-        const { clientX, clientY } = e;
-        const xPos = (clientX / window.innerWidth - 0.5) * 50;
-        const yPos = (clientY / window.innerHeight - 0.5) * 50;
+      const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
-        // Parallax effect on shapes
-        gsap.to(shapesRef.current, {
-          x: (i) => xPos * (i + 1) * 0.5,
-          y: (i) => yPos * (i + 1) * 0.5,
-          duration: 1,
+      tl.to(mainRef.current, { opacity: 1, duration: 0.1 })
+        .from(sidePanelRef.current, {
+          xPercent: -100,
+          duration: 1.5,
+          ease: "expo.inOut",
+        })
+        .from(
+          ".stagger-text",
+          { y: 60, opacity: 0, stagger: 0.1, duration: 1.2 },
+          "-=0.6",
+        )
+        .from(
+          formBoxRef.current,
+          { x: 50, opacity: 0, duration: 1.2 },
+          "-=0.8",
+        );
+
+      // Cursor & Particles Logic
+      const moveCursor = (e) => {
+        gsap.to(cursorRef.current, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.5,
           ease: "power2.out",
-          stagger: 0.1,
         });
+        // Parallax
+        const xPos = (e.clientX / window.innerWidth - 0.5) * 40;
+        const yPos = (e.clientY / window.innerHeight - 0.5) * 40;
+        gsap.to(particlesRef.current, { x: xPos, y: yPos, duration: 2 });
       };
 
-      window.addEventListener("mousemove", onMouseMove);
-
-      // Floating animation
-      shapesRef.current.forEach((shape, i) => {
-        gsap.to(shape, {
-          rotation: "random(-20, 20)",
-          y: "random(-30, 30)",
-          duration: "random(3, 6)",
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: i * 0.2,
-        });
-      });
-
-      return () => window.removeEventListener("mousemove", onMouseMove);
-    }, containerRef);
+      window.addEventListener("mousemove", moveCursor);
+      return () => window.removeEventListener("mousemove", moveCursor);
+    }, mainRef);
 
     return () => ctx.revert();
   }, []);
 
-  const addToRefs = (el) => {
-    if (el && !shapesRef.current.includes(el)) {
-      shapesRef.current.push(el);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      if (!email || !password) return toast.error("Credentials required.");
+      setLoading(true);
+  
+      // Simulate Login
+  
+      const result = await axios.post(
+        "http://localhost:3000/api/user/login",
+        { email, password },
+        { withCredentials: true },
+      );
+  
+      console.log(result)
+      dispatch(setUserData(result.data))
+  
+      setTimeout(() => {
+        setLoading(false);
+        toast.success("Welcome back, Commander.");
+  
+        // Exit Animation
+        const tl = gsap.timeline();
+        tl.to(sidePanelRef.current, {
+          xPercent: -100,
+          duration: 1,
+          ease: "expo.inOut",
+        })
+          .to(formBoxRef.current, { opacity: 0, x: 50, duration: 0.5 }, "-=0.8")
+          .to(mainRef.current, {
+            opacity: 0,
+            duration: 0.5,
+            onComplete: () => navigate("/"),
+          });
+      }, 1500);
+    } catch (error) {
+      toast.error(error.data.message)
     }
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-[#0a0a0a] flex items-center justify-center">
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 via-black to-black" />
-      
-      {/* Abstract Shapes */}
-      <div ref={addToRefs} className="absolute w-64 h-64 bg-indigo-600 rounded-full mix-blend-screen filter blur-[80px] opacity-30 top-1/4 left-1/4" />
-      <div ref={addToRefs} className="absolute w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 bottom-1/4 right-1/4" />
-      <div ref={addToRefs} className="absolute w-40 h-40 bg-pink-500 rounded-full mix-blend-screen filter blur-[60px] opacity-20 top-1/2 left-1/2" />
-
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
-
-      <div className="relative z-10 text-center p-12">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tighter">
-            Elevate <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Your Vision.</span>
-          </h1>
-          <p className="text-zinc-400 text-lg max-w-md mx-auto leading-relaxed">
-            Join a community of creators and innovators building the future of digital experiences.
-          </p>
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
-// --- Custom Floating Input Component ---
-const InputField = ({ label, type, value, onChange, icon }) => {
-  const [focused, setFocused] = useState(false);
-  
-  return (
-    <div className="relative mb-6 group">
-      <div className={`absolute left-0 top-3.5 transition-colors duration-300 ${focused ? "text-indigo-400" : "text-zinc-500"}`}>
-        {icon}
-      </div>
-      <input
-        type={type}
-        value={value}
-        onChange={onChange}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        className="w-full bg-transparent border-b border-zinc-800 py-3 pl-10 pr-4 text-white focus:outline-none focus:border-indigo-500 transition-all duration-300 placeholder-transparent z-10 relative"
-        placeholder={label} // Required for floating label trick
-        id={label}
-        required
+    <div
+      ref={mainRef}
+      className="relative min-h-screen bg-[#020202] text-white overflow-hidden opacity-0 font-sans selection:bg-cyan-500 selection:text-black"
+    >
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#111",
+            color: "#fff",
+            border: "1px solid #333",
+          },
+        }}
       />
-      <label
-        htmlFor={label}
-        className={`absolute left-10 transition-all duration-300 pointer-events-none
-          ${focused || value 
-            ? "-top-2.5 text-xs text-indigo-400" 
-            : "top-3.5 text-sm text-zinc-500"
-          }`}
+
+      {/* Cursor & Particles */}
+      <div
+        ref={cursorRef}
+        className="fixed w-8 h-8 border border-cyan-400/50 rounded-full pointer-events-none z-[9999] hidden lg:block -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
+      />
+      <div
+        ref={particlesRef}
+        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
       >
-        {label}
-      </label>
-      {/* Background glow on focus */}
-      <div className={`absolute bottom-0 left-0 h-[1px] w-full bg-indigo-500 origin-left transform transition-transform duration-500 ${focused ? "scale-x-100" : "scale-x-0"}`} />
-    </div>
-  );
-};
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+      </div>
 
-const Login = () => {
-  const { setShowLogin, axios, setToken, navigate } = useAppContext();
-  
-  const [state, setState] = useState("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 min-h-screen">
+        {/* LEFT PANEL: Welcome Back */}
+        <div
+          ref={sidePanelRef}
+          className="hidden lg:flex lg:col-span-5 bg-[#080808] border-r border-white/5 flex-col justify-between p-20 relative overflow-hidden"
+        >
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-900/10 blur-[150px] rounded-full" />
 
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const { data } = await axios.post(`/api/user/${state}`, {
-        name,
-        email,
-        password,
-      });
+          <div className="relative z-10">
+            <div className="stagger-text flex items-center gap-3 mb-24">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <div className="w-3 h-3 bg-black rounded-[2px]" />
+              </div>
+              <span className="text-lg font-bold tracking-widest uppercase">
+                Nexus OS
+              </span>
+            </div>
 
-      if (data.success) {
-        setToken(data.token);
-        localStorage.setItem("token", data.token);
-        setShowLogin(false);
-        navigate("/");
-        toast.custom((t) => (
-          <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-zinc-900 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
-            <div className="flex-1 w-0 p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 pt-0.5">
-                  <CheckCircle2 className="h-10 w-10 text-green-500" />
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-white">Success!</p>
-                  <p className="mt-1 text-sm text-zinc-400">Welcome back to the platform.</p>
+            <h1 className="stagger-text text-[7vw] font-black leading-[0.9] tracking-tighter mb-8">
+              SYSTEM <br />{" "}
+              <span className="text-transparent stroke-text">READY.</span>
+            </h1>
+            <p className="stagger-text text-white/40 text-lg max-w-sm font-light leading-relaxed">
+              Resume your session. The terminal is waiting for your command.
+            </p>
+          </div>
+
+          <div className="stagger-text border-t border-white/5 pt-8">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-white/20">
+              Secure Connection Established
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL: Login Form */}
+        <div className="lg:col-span-7 flex items-center justify-center p-8 lg:p-24 relative bg-[#050505]">
+          <div ref={formBoxRef} className="w-full max-w-[420px]">
+            <div className="mb-12">
+              <h2 className="text-4xl font-bold tracking-tighter mb-3">
+                Login
+              </h2>
+              <p className="text-white/40">Enter your digital fingerprint.</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <ModernInput
+                label="Email Identity"
+                type="email"
+                value={email}
+                onChange={setEmail}
+                placeholder="admin@nexus.systems"
+              />
+
+              <div>
+                <PasswordInput
+                  label="Password"
+                  value={password}
+                  onChange={setPassword}
+                  placeholder="••••••••••••"
+                />
+                <div className="flex justify-end mt-2">
+                  <Link
+                    to="/forgot-password"
+                    className="text-[10px] uppercase tracking-widest text-white/40 hover:text-cyan-400 transition-colors"
+                  >
+                    Lost Credentials?
+                  </Link>
                 </div>
               </div>
-            </div>
-          </div>
-        ));
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  // UI Variants for animation
-  const formVariants = {
-    hidden: { opacity: 0, x: 20 },
-    visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -20 }
-  };
-
-  return (
-    // Main Container - Full Viewport
-    <div className="fixed inset-0 z-[100] flex flex-col md:flex-row bg-[#050505] font-sans">
-      
-      {/* LEFT: Artistic Side (Hidden on mobile, 50% on desktop) */}
-      <div className="hidden md:block md:w-1/2 relative">
-        <ArtisticBackground />
-      </div>
-
-      {/* RIGHT: Form Side */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-20 lg:px-32 relative bg-[#050505]">
-        
-        {/* Back Button */}
-        <button 
-          onClick={() => setShowLogin(false)}
-          className="absolute top-8 left-8 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors group"
-        >
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          Back
-        </button>
-
-        <div className="w-full max-w-md mx-auto">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center mb-8 border border-zinc-800">
-               <Sparkles className="text-indigo-500" size={20} />
-            </div>
-            <h2 className="text-3xl font-semibold text-white tracking-tight">
-              {state === "login" ? "Welcome back" : "Create an account"}
-            </h2>
-            <p className="text-zinc-500 mt-2">
-              {state === "login" 
-                ? "Enter your details to access your account." 
-                : "It's free and takes less than a minute."}
-            </p>
-          </motion.div>
-
-          {/* Form */}
-          <form onSubmit={onSubmitHandler} className="mt-10">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={state}
-                variants={formVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.2 }}
-              >
-                {state === "register" && (
-                  <InputField 
-                    label="Full Name" 
-                    type="text" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)}
-                    icon={<div className="w-4" />} // Placeholder icon or real icon
-                  />
-                )}
-                
-                <InputField 
-                  label="Email Address" 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)}
-                  icon={<div className="w-4" />}
-                />
-                
-                <InputField 
-                  label="Password" 
-                  type="password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)}
-                  icon={<div className="w-4" />}
-                />
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Toggle Link */}
-            <div className="flex items-center justify-between mt-8 mb-8">
-              <p className="text-sm text-zinc-500">
-                {state === "login" ? "Don't have an account?" : "Already have an account?"}
+              <div className="pt-6">
                 <button
-                  type="button"
-                  onClick={() => setState(state === "login" ? "register" : "login")}
-                  className="ml-2 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+                  type="submit"
+                  disabled={loading}
+                  className="group relative w-full h-[60px] bg-white text-black font-black uppercase tracking-[0.2em] text-xs rounded-xl overflow-hidden transition-all active:scale-95 disabled:opacity-50"
                 >
-                  {state === "login" ? "Sign up" : "Log in"}
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {loading ? "Authenticating..." : "Authenticate"}
+                    {!loading && <ArrowRight size={14} />}
+                  </span>
+                  <div className="absolute inset-0 bg-cyan-400 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-expo" />
                 </button>
+              </div>
+            </form>
+
+            <div className="mt-12 text-center">
+              <p className="text-white/30 text-sm font-light">
+                New to the system?
+                <Link
+                  to="/signup"
+                  className="ml-2 text-white font-bold hover:text-cyan-400 transition-colors underline decoration-white/20 underline-offset-4"
+                >
+                  Initialize Protocol
+                </Link>
               </p>
             </div>
-
-            {/* Submit Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full bg-white text-black hover:bg-zinc-200 font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="animate-spin" size={20} />
-              ) : (
-                <>
-                  {state === "register" ? "Get Started" : "Continue"}
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </motion.button>
-          </form>
-        </div>
-
-        {/* Footer Credit (Optional) */}
-        <div className="absolute bottom-6 left-0 w-full text-center md:text-left md:px-32">
-          <p className="text-xs text-zinc-700">© 2024 Your Brand Inc.</p>
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .stroke-text {
+          -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+        }
+        .ease-expo {
+          transition-timing-function: cubic-bezier(0.9, 0, 0.1, 1);
+        }
+      `}</style>
     </div>
   );
-};
-
-export default Login;
+}

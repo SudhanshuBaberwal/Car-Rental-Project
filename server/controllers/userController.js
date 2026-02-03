@@ -244,9 +244,6 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-
-// Get User data
-
 export const getUserData = async (req , res) => {
     try {
         const {user} = req;
@@ -259,8 +256,6 @@ export const getUserData = async (req , res) => {
         return res.status(400).json({success : false , message : error.message})
     }
 }
-
-// get all cars for the frontend
 
 export const getCars = async (req , res) => {
   try {
