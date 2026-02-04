@@ -6,9 +6,10 @@ import toast from "react-hot-toast";
 import {animate, motion} from "motion/react"
 
 const Navbar = () => {
-  const { setShowLogin, user, logout, isOwner, axios, setIsOwner } =
-    useAppContext();
-
+  // const { setShowLogin, user, logout, isOwner, axios, setIsOwner } =
+  //   useAppContext();
+const isOwner = false;
+const user = []
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();

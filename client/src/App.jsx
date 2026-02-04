@@ -16,24 +16,34 @@ import { Toaster } from "react-hot-toast";
 import { useAppContext } from "./context/AppContext";
 import Signup from "./components/Signup";
 import VerifyEmail from "./components/VerifyEmail";
+import MainLayout from "./utils/MainLayout";
 
 const App = () => {
   return (
     <>
       <Toaster />
+
       <Routes>
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/verifyEmail" element={<VerifyEmail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/car-details/:id" element={<CarDetails />} />
-        <Route path="/cars" element={<Cars />} />
-        <Route path="/my-bookings" element={<MyBookings />} />
-        <Route path="/owner" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="add-car" element={<AddCar />} />
-          <Route path="manage-cars" element={<ManageCars />} />
-          <Route path="manage-bookings" element={<ManageBookings />} /> 
+        {/* 🔥 MAIN LAYOUT (Navbar + Footer everywhere) */}
+        <Route element={<MainLayout />}>
+          {/* Auth pages (Navbar + Footer INCLUDED) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verifyEmail" element={<VerifyEmail />} />
+
+          {/* User pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/cars" element={<Cars />} />
+          <Route path="/car-details/:id" element={<CarDetails />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+
+          {/* Owner dashboard */}
+          <Route path="/owner" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="add-car" element={<AddCar />} />
+            <Route path="manage-cars" element={<ManageCars />} />
+            <Route path="manage-bookings" element={<ManageBookings />} />
+          </Route>
         </Route>
       </Routes>
     </>
