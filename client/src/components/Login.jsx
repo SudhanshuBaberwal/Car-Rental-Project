@@ -214,8 +214,6 @@ export default function Login() {
       if (!email || !password) return toast.error("Credentials required.");
       setLoading(true);
   
-      // Simulate Login
-  
       const result = await axios.post(
         "http://localhost:3000/api/user/login",
         { email, password },

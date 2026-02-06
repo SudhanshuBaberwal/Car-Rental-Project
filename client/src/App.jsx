@@ -25,11 +25,11 @@ const App = () => {
 
       <Routes>
         {/* 🔥 MAIN LAYOUT (Navbar + Footer everywhere) */}
-        <Route element={<MainLayout />}>
-          {/* Auth pages (Navbar + Footer INCLUDED) */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verifyEmail" element={<VerifyEmail />} />
+        <Route element={<MainLayout />}>
+          {/* Auth pages (Navbar + Footer INCLUDED) */}
 
           {/* User pages */}
           <Route path="/" element={<Home />} />
