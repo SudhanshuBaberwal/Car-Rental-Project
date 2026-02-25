@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
@@ -17,12 +17,25 @@ import { useAppContext } from "./context/AppContext";
 import Signup from "./components/Signup";
 import VerifyEmail from "./components/VerifyEmail";
 import MainLayout from "./utils/MainLayout";
+import { useDispatch } from "react-redux";
+import axios from "axios";
 
 const App = () => {
+
+  const dispatch = useDispatch()
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const {data} = await axios.get("http://localhost:3000/api/auth/ge")
+      } catch (error) {
+        
+      }
+    }
+  } , [])
+  
   return (
     <>
       <Toaster />
-
       <Routes>
         {/* 🔥 MAIN LAYOUT (Navbar + Footer everywhere) */}
           <Route path="/login" element={<Login />} />

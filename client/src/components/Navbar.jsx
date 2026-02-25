@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { animate, motion } from "motion/react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import setUserData from "../redux/userSlice"
+import { setUserData } from "../redux/userSlice";
 
 const Navbar = () => {
   // const { setShowLogin, user, logout, isOwner, axios, setIsOwner } =
@@ -14,13 +14,14 @@ const Navbar = () => {
   const isOwner = false;
   const user = [];
 
-  const {userdata} = useSelector((state) => state.user)
+  const userdata = useSelector((state) => state.user.userData);
+  console.log(userdata);
 
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const [loading , setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const changeRole = async () => {
     try {
@@ -36,24 +37,26 @@ const Navbar = () => {
     }
   };
 
+
+  
   const handleLogout = async (e) => {
-    
-   try {
-     e.preventDefault()
-     setLoading(true)
-     if (!userdata){
-       navigate("/login")
-       return;
-     }
-     await axios.get("http://localhost:3000/api/user/logout")
-     dispatch(setUserData(null))
-     setLoading(false)
-     toast.success("Logout Successfully")
-   } catch (error) {
-    console.log(error)
-    toast.error("Error," , error)
-   }
-  }
+    e.preventDefault();
+    try {
+      setLoading(true);
+      if (!userdata) {
+        setLoading(false);
+        navigate("/login");
+        return;
+      }
+      await axios.get("http://localhost:3000/api/user/logout" , {withCredentials : true});
+      dispatch(setUserData(null));
+      setLoading(false);
+      toast.success("Logout Successfully");
+    } catch (error) {
+      console.log(error);
+      toast.error("Error,", error);
+    }
+  };
 
   return (
     <motion.div

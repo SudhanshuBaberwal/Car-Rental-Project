@@ -7,7 +7,6 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
 
-// --- Components ---
 
 const ModernInput = ({
   label,
@@ -149,8 +148,6 @@ const PasswordInput = ({ label, value, onChange, placeholder }) => {
   );
 };
 
-// --- Main Page ---
-
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -162,9 +159,9 @@ export default function Login() {
   const formBoxRef = useRef(null);
   const cursorRef = useRef(null);
   const particlesRef = useRef(null);
-
-
   const dispatch = useDispatch()
+
+
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -221,6 +218,7 @@ export default function Login() {
       );
   
       console.log(result)
+      console.log(result.data)
       dispatch(setUserData(result.data))
   
       setTimeout(() => {
@@ -242,7 +240,7 @@ export default function Login() {
           });
       }, 1500);
     } catch (error) {
-      toast.error(error.data.message)
+      console.log(error)
     }
   };
 
@@ -383,14 +381,17 @@ export default function Login() {
         </div>
       </div>
 
-      <style jsx>{`
-        .stroke-text {
-          -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
-        }
-        .ease-expo {
-          transition-timing-function: cubic-bezier(0.9, 0, 0.1, 1);
-        }
-      `}</style>
+     <style>
+  {`
+    .stroke-text {
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .ease-expo {
+      transition-timing-function: cubic-bezier(0.9, 0, 0.1, 1);
+    }
+  `}
+</style>
     </div>
   );
 }

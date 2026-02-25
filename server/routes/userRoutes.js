@@ -1,7 +1,7 @@
 import express from "express";
 import {
   getCars,
-  getUserData,
+  getCurrentUser,
   login,
   signup,
   logout,
@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPassword,
 } from "../controllers/userController.js";
+import isAuth from "../middleware/auth.js";
 
 const authRouter = express.Router();
 
@@ -18,5 +19,6 @@ authRouter.post("/verifyEmail", verifyEmail);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.get("/logout", logout);
 authRouter.post("/reset-password/:token", resetPassword);
+authRouter.get("/getCurrentUser" , isAuth , getCurrentUser)
 
 export default authRouter;

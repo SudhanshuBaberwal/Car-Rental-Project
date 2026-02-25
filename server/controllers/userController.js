@@ -244,12 +244,20 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-export const getUserData = async (req , res) => {
+export const getCurrentUser = async (req , res) => {
     try {
-        const {user} = req;
+        const user = req.id;
+        console.log(user)
+        if (!user){
+          return res.status(400).json({success : false, message : "Invalid Token Payload"})
+        }
+        const userData = await User.findById(user).select("-password")
+        if (!userData){
+          return res.status(400).json({success : false , message : "User Not Found"})
+        }
         res.status(200).json({
             success : true,
-            user
+            userData
         })
     } catch (error) {
         console.log("Error in getUser data" , error.message);
