@@ -36,8 +36,6 @@ const Navbar = () => {
       toast.error(error.message);
     }
   };
-
-
   
   const handleLogout = async (e) => {
     e.preventDefault();
