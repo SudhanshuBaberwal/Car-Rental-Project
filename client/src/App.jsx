@@ -19,6 +19,7 @@ import VerifyEmail from "./components/VerifyEmail";
 import MainLayout from "./utils/MainLayout";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import { setUserData } from "./redux/userSlice";
 
 const App = () => {
 
@@ -26,12 +27,15 @@ const App = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const {data} = await axios.get("http://localhost:3000/api/auth/ge")
+        const {data} = await axios.get("http://localhost:3000/api/user/getCurrentUser", {withCredentials: true})
+        console.log(data)
+        dispatch(setUserData(data.userData))
       } catch (error) {
-        
+        console.log(error)
       }
     }
-  } , [])
+    fetchUser()
+  } , [dispatch])
   
   return (
     <>

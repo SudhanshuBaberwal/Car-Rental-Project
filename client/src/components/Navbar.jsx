@@ -49,6 +49,7 @@ const Navbar = () => {
       await axios.get("http://localhost:3000/api/user/logout" , {withCredentials : true});
       dispatch(setUserData(null));
       setLoading(false);
+      navigate("/login")
       toast.success("Logout Successfully");
     } catch (error) {
       console.log(error);
