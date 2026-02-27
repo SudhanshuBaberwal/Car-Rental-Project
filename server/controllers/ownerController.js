@@ -7,12 +7,16 @@ import mongoose, { isValidObjectId } from "mongoose";
 export const changeRoleToOwner = async (req, res) => {
   try {
     const id  = req.id;
-    console.log(id)
-    const user = await User.findByIdAndUpdate(id, {
-      role: "owner",
-    });
+    // console.log(id)
+
+    const user = await User.findById(id)
+    if (user.role == "owner"){
+      return res.status(401).json({success :false , message : "Status Owner Is Already Set"})
+    }
+    user.role = "owner";
     await user.save()
-    res.status(200).json({ success: true, message: "Now you can list cars" });
+    const u = await User.findById(id).select("-password")
+    res.status(200).json(u);
   } catch (error) {
     console.log("Error in changeRoleToOwner function : ", error.message);
     return res.status(400).json({ success: false, message: error.message });
@@ -194,3 +198,12 @@ export const updateUserImage = async (req, res) => {
     return res.status(400).json({ success: false, message: error.message });
   }
 };
+
+export const getOwnerData = async (req , res) => {
+  const id = req.id;
+  const owner = await User.findById(id)
+  if (owner.role != "owner"){
+    return res.status(400).json({success : false , message : "You Are Not Authorized As Owner"})
+  }
+  return res.status(201).json({owner})
+}

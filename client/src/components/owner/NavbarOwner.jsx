@@ -2,9 +2,11 @@ import React from "react";
 import { assets } from "../../assets/assets";
 import { Link } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
+import { useSelector } from "react-redux";
 
 const NavbarOwner = () => {
-  const {user} = useAppContext()
+  // const {user} = useAppContext()
+  // const user = useSelector((state) => state.user.userData)
 
   return (
     <div
@@ -15,7 +17,7 @@ const NavbarOwner = () => {
       <Link to="/">
         <img src={assets.logo} className="h-7" alt="" />
       </Link>
-      <p>Welcome , {user?.name || "Owner"}</p>
+      {/* <p>Welcome , {user?.name || "Owner"}</p> */}
     </div>
   );
 };

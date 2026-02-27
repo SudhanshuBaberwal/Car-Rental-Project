@@ -7,36 +7,33 @@ import { animate, motion } from "motion/react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setUserData } from "../redux/userSlice";
+import { setIsOwner, setOwnerData } from "../redux/ownerSlice";
+import { changeRole } from "../middleware/api";
 
 const Navbar = () => {
   // const { setShowLogin, user, logout, isOwner, axios, setIsOwner } =
   //   useAppContext();
-  const isOwner = false;
-  const user = [];
 
   const userdata = useSelector((state) => state.user.userData);
-  console.log(userdata);
-
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const changeRole = async () => {
-    try {
-      const { data } = await axios.post("/api/owner/change-role");
-      if (data.success) {
-        setIsOwner(true);
-        toast.success(data.message);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-  
+const changeRole = async () => {
+  const { data } = await axios.post(
+    "http://localhost:3000/api/owner/change-role",
+    {},
+    { withCredentials: true },
+    toast.success("Now You Can List Your Cars")
+  );
+};
+
+  const owner = useSelector((state) => state.owner)
+  console.log(owner)
+  const isOwner = owner.IsOwner;
+ 
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
@@ -103,7 +100,7 @@ const Navbar = () => {
 
         <div className="flex max-sm:flex-col items-start sm:items-center gap-6">
           <button
-            onClick={() => (isOwner ? navigate("/owner") : changeRole())}
+            onClick={() => isOwner ? navigate("/owner") : changeRole()}
             className="cursor-pointer"
           >
             {isOwner ? "Dashboard" : "List cars"}

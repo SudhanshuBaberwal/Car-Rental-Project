@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const carSlice = createSlice({
-    name : "Car",
+    name : "owner",
     initialState : {
         ownerData : null,
-        ownerCars : []
+        ownerCars : [],
+        IsOwner : false
     },
     reducers : {
         setOwnerData : (state,action) => {
@@ -12,9 +13,12 @@ const carSlice = createSlice({
         },
         setOwnerCars : (state,action) => {
             state.ownerCars = action.payload;
+        },
+        setIsOwner : (state,action)=> {
+            state.IsOwner = action.payload;
         }
     }
 })
 
-export const {setOwnerCars , setOwnerData} = carSlice.actions;
+export const {setOwnerCars , setOwnerData , setIsOwner} = carSlice.actions;
 export default carSlice.reducer;

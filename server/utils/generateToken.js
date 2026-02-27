@@ -1,9 +1,14 @@
 import jwt from "jsonwebtoken";
 
 export const generateToken = (res, userId) => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret){
+    return res.status(500).json({success : false , message : "Secret Key is not provided"})
+  }
+  console.log( "secret : " + secret)
   const token = jwt.sign(
     { userId }, 
-    process.env.JWT_SECRET,
+    secret,
     { expiresIn: "7d" }
   );
   if (!token) {
@@ -14,7 +19,7 @@ export const generateToken = (res, userId) => {
   res.cookie("token", token, {
     httpOnly: true,
     secure: false, // true in production (HTTPS)
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 

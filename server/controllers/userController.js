@@ -127,7 +127,7 @@ export const logout = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   const { verificationCode } = req.body;
   try {
-    console.log(verificationCode)
+    // console.log(verificationCode)
     const user = await User.findOne({
       verificationToken: String(verificationCode),
       // verificationTokenExpiresAt: { $gt: new Date() },
@@ -170,9 +170,9 @@ export const forgotPassword = async (req, res) => {
         .status(400)
         .json({ success: false, message: "All fields are required" });
     }
-    console.log(email);
+    // console.log(email);
     const user = await User.findOne({ email });
-    console.log(user);
+    // console.log(user);
     if (!user) {
       return res
         .status(400)

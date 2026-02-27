@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { assets, ownerMenuLinks } from "../../assets/assets";
 import { NavLink, useLocation } from "react-router-dom";
-import { useAppContext } from "../../context/AppContext";
+// import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 const Sidebar = () => {
-  const {user , axios , fetchUser } = useAppContext();
+  // const {user , axios , fetchUser } = useAppContext();
   const location = useLocation();
   const [image, setImage] = useState("");
+  const user = useSelector((state) => state.user.userData)
+  const isOwner = false;
+
 
   const updateImage = async () => {
     try {

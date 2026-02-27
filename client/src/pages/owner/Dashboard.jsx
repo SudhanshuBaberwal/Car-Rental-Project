@@ -3,10 +3,14 @@ import { assets, dummyDashboardData } from "../../assets/assets";
 import Title from "../../components/owner/Title";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
 
-  const {axios , isOwner , currency} = useAppContext() 
+  // const {isOwner , currency} = useAppContext() 
+  const owner = useSelector((state) => state.owner)
+  const isOwner = owner.IsOwner;
+  const currency = "$"
 
   // const currency = import.meta.env.VITE_CURRENCY;
 
@@ -40,7 +44,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const {data} = await axios.get("/api/owner/deshboard")
+      const {data} = await axios.get("http://localhost:3000/api/owner/deshboard")
       if (data.success){
         setData(data.deshboardData)
       }

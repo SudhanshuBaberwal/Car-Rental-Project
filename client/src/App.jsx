@@ -20,21 +20,36 @@ import MainLayout from "./utils/MainLayout";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserData } from "./redux/userSlice";
+import { changeRole } from "./middleware/api";
+import { setIsOwner, setOwnerData } from "./redux/ownerSlice";
 
 const App = () => {
+
+  axios.defaults.withCredentials = true
 
   const dispatch = useDispatch()
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const {data} = await axios.get("http://localhost:3000/api/user/getCurrentUser", {withCredentials: true})
-        console.log(data)
+        // console.log(data)
         dispatch(setUserData(data.userData))
       } catch (error) {
         console.log(error)
       }
     }
+    const fetchOwner = async () => {
+      try {
+        const {data} = await axios.get("http://localhost:3000/api/owner/get-owner-data")
+        console.log(data)
+        dispatch(setOwnerData(data.owner))
+        dispatch(setIsOwner(true))
+      } catch (error) {
+        console.log(error)
+      }
+    }
     fetchUser()
+    fetchOwner()
   } , [dispatch])
   
   return (

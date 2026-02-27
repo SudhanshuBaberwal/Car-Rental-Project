@@ -6,6 +6,7 @@ import {
   deleteCar,
   getDeshboardData,
   getOwnerCars,
+  getOwnerData,
   toggleCarAvailability,
   updateUserImage,
 } from "../controllers/ownerController.js";
@@ -18,7 +19,7 @@ ownerRouter.post("/add-car", isAuth, upload.single("image"), addCar);
 ownerRouter.get("/cars", isAuth, getOwnerCars);
 ownerRouter.post("/toggle-car", isAuth, toggleCarAvailability);
 ownerRouter.post("/delete-car", isAuth, deleteCar);
-
+ownerRouter.get("/get-owner-data" , isAuth , getOwnerData)
 ownerRouter.get("/deshboard", isAuth, getDeshboardData);
 ownerRouter.post(
   "/update-image",
