@@ -37,7 +37,7 @@ export const addCar = async (req, res) => {
     let car = JSON.parse(req.body.carData);
     const imageFile = req.file;
 
-    console.log(_id);
+    // console.log(_id);
     // console.log(car);
     // console.log(imageFile);
 
@@ -61,8 +61,10 @@ export const addCar = async (req, res) => {
 
 export const getOwnerCars = async (req, res) => {
   try {
-    const { _id } = req.id;
+    const _id  = req.id;
+    console.log(_id)
     const cars = await Car.find({ owner: _id });
+    console.log(cars)
     res.status(200).json({
       success: true,
       cars,
@@ -140,8 +142,8 @@ export const getDeshboardData = async (req, res) => {
     const id  = req.id;
     const u = await User.findById(id)
     const role = u.role;
-    console.log(role)
-    console.log(u)
+    // console.log(role)
+    // console.log(u)
     if (role != "owner") {
       return res.status(400).json({ success: false, message: "Unauthorized" });
     }

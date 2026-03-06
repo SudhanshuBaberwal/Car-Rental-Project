@@ -3,16 +3,20 @@ import React, { useEffect, useState } from "react";
 import Title from "../../components/owner/Title";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const ManageBookings = () => {
 
-  const {currency , axios} = useAppContext()
+  // const {currency} = useAppContext()
+
   // const currency = import.meta.env.VITE_CURRENCY;
+  const currency = ""
   const [bookings, setBookings] = useState([]);
 
   const fetchOwnerBookings = async () => {
     try {
-      const {data} = await axios.get("/api/bookings/owner")
+      const {data} = await axios.get("http://localhost:3000/api/bookings/owner-bookings")
+      console.log(data)
       data.success ? setBookings(data.bookings) : toast.error(data.message)
     } catch (error) {
       toast.error(error.message)
@@ -21,7 +25,7 @@ const ManageBookings = () => {
 
   const changeBookingStatus = async (bookingId , status) => {
     try {
-      const {data} = await axios.get("/api/bookings/change-status" , {bookingId , status})
+      const {data} = await axios.get("http://localhost:3000/api/bookings/change-status" , {bookingId , status})
       data.success ? toast.success(data.message) : toast.error(data.message)
       fetchOwnerBookings()
     } catch (error) {

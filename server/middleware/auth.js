@@ -5,7 +5,7 @@ const isAuth = async (req, res, next) => {
     let token = req.cookies?.token;
     // console.log(req)
     // console.log(req.header.cookie)
-    console.log( "token : " + token);
+    // console.log( "token : " + token);
 
     if (!token) {
       return res.status(400).json({
@@ -20,9 +20,9 @@ const isAuth = async (req, res, next) => {
         message: "Not Authorized",
       });
     }
-    console.log(verifyToken)
+    // console.log(verifyToken)
     req.id = verifyToken.userId;
-    console.log(req.id)
+    // console.log(req.id)
     next();
   } catch (error) {
     console.log("Error in Auth function : ", error);

@@ -21,19 +21,19 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-const changeRole = async () => {
-  const { data } = await axios.post(
-    "http://localhost:3000/api/owner/change-role",
-    {},
-    { withCredentials: true },
-    toast.success("Now You Can List Your Cars")
-  );
-};
+  const changeRole = async () => {
+    const { data } = await axios.post(
+      "http://localhost:3000/api/owner/change-role",
+      {},
+      { withCredentials: true },
+      toast.success("Now You Can List Your Cars"),
+    );
+  };
 
-  const owner = useSelector((state) => state.owner)
-  console.log(owner)
+  const owner = useSelector((state) => state.owner);
+  // console.log(owner)
   const isOwner = owner.IsOwner;
- 
+
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
@@ -43,10 +43,12 @@ const changeRole = async () => {
         navigate("/login");
         return;
       }
-      await axios.get("http://localhost:3000/api/user/logout" , {withCredentials : true});
+      await axios.get("http://localhost:3000/api/user/logout", {
+        withCredentials: true,
+      });
       dispatch(setUserData(null));
       setLoading(false);
-      navigate("/login")
+      navigate("/login");
       toast.success("Logout Successfully");
     } catch (error) {
       console.log(error);
@@ -100,7 +102,7 @@ const changeRole = async () => {
 
         <div className="flex max-sm:flex-col items-start sm:items-center gap-6">
           <button
-            onClick={() => isOwner ? navigate("/owner") : changeRole()}
+            onClick={() => (isOwner ? navigate("/owner") : changeRole())}
             className="cursor-pointer"
           >
             {isOwner ? "Dashboard" : "List cars"}

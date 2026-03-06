@@ -41,7 +41,7 @@ const App = () => {
     const fetchOwner = async () => {
       try {
         const {data} = await axios.get("http://localhost:3000/api/owner/get-owner-data")
-        console.log(data)
+        // console.log(data)
         dispatch(setOwnerData(data.owner))
         dispatch(setIsOwner(true))
       } catch (error) {

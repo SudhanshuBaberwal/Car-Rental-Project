@@ -7,6 +7,7 @@ import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
 import { motion } from "motion/react";
+import axios from "axios";
 
 const Cars = () => {
   const [input, setInput] = useState("");
@@ -16,9 +17,11 @@ const Cars = () => {
   const pickupLocation = searchParams.get("pickupLocation");
   const pickupDate = searchParams.get("pickupDate");
   const returnDate = searchParams.get("returnDate");
-  const { cars, axios } = useAppContext();
+  // const { cars, axios } = useAppContext();
   const isSearchData = pickupDate && pickupLocation && returnDate;
   const [filteredCars, setFilteredCars] = useState([]);
+
+  const cars = ""
 
   const applyFilter = async () => {
     if (input === "") {
@@ -37,11 +40,12 @@ const Cars = () => {
   };
 
   const searchCarAvailablity = async () => {
-    const { data } = await axios.post("/api/bookings/check-availability", {
+    const { data } = await axios.post("http://localhost:3000/api/bookings/check-availability", {
       location: pickupLocation,
       pickupDate,
       returnDate,
     });
+    console.log(data)
     if (data.success) {
       setFilteredCars(data.availableCars);
       if (setFilteredCars(data.availableCars.length === 0)) {
