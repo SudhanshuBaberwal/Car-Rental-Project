@@ -20,5 +20,6 @@ authRouter.post("/forgot-password", forgotPassword);
 authRouter.get("/logout", logout);
 authRouter.post("/reset-password/:token", resetPassword);
 authRouter.get("/getCurrentUser" , isAuth , getCurrentUser)
+authRouter.get("/cars" , isAuth , getCars)
 
 export default authRouter;

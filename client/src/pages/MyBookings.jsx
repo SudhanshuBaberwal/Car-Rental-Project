@@ -4,9 +4,11 @@ import Title from "../components/Title";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import { motion } from "motion/react";
+import axios from "axios";
 
 const MyBookings = () => {
-  const { axios, user, currency } = useAppContext();
+  // const { axios, user, currency } = useAppContext();
+  const user = []
 
   const [bookings, setBookings] = useState([]);
   // const currency = import.meta.env.VITE_CURRENCY;

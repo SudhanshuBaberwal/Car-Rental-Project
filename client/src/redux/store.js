@@ -2,11 +2,13 @@ import {configureStore} from "@reduxjs/toolkit"
 import bookingSlice from "./bookingSlice"
 import ownerSlice from "./ownerSlice"
 import userSlice from "./userSlice"
+import carSlice from "./carSlice"
 
 export const store = configureStore({
     reducer : {
         user : userSlice,
-        booking : bookingSlice,
-        owner : ownerSlice
-    }
+        bookings : bookingSlice,
+        owner : ownerSlice,
+        Cars : carSlice
+    }   
 })

@@ -22,6 +22,7 @@ import axios from "axios";
 import { setUserData } from "./redux/userSlice";
 import { changeRole } from "./middleware/api";
 import { setIsOwner, setOwnerData } from "./redux/ownerSlice";
+import { setBoxCars } from "./redux/carSlice";
 
 const App = () => {
 
@@ -48,6 +49,16 @@ const App = () => {
         console.log(error)
       }
     }
+    const carData = async () => {
+          // e.preventDefault();
+          try {
+            const data = await axios.get("http://localhost:3000/api/user/cars");
+            // console.log(data);
+            // setCars(data.data.cars)
+            dispatch(setBoxCars(data.data.cars))
+          } catch (error) {}
+        };
+        carData();
     fetchUser()
     fetchOwner()
   } , [dispatch])

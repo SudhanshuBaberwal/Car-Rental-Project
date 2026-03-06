@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import Title from "../components/Title";
 import { assets, dummyCarData } from "../assets/assets";
 import CarCard from "../components/CarCard";
-import { useSearchParams } from "react-router-dom";
+import { data, useSearchParams } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
 import { motion } from "motion/react";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setBoxCars } from "../redux/carSlice";
 
 const Cars = () => {
   const [input, setInput] = useState("");
@@ -20,8 +22,17 @@ const Cars = () => {
   // const { cars, axios } = useAppContext();
   const isSearchData = pickupDate && pickupLocation && returnDate;
   const [filteredCars, setFilteredCars] = useState([]);
+  const [cars , setCars] = useState([])
+  // const cars = "";
 
-  const cars = ""
+
+const data = useSelector((state) => state.Cars);
+
+useEffect(() => {
+  if (data?.CarsBox) {
+    setCars(data.CarsBox);
+  }
+}, [data]);
 
   const applyFilter = async () => {
     if (input === "") {
@@ -40,12 +51,17 @@ const Cars = () => {
   };
 
   const searchCarAvailablity = async () => {
-    const { data } = await axios.post("http://localhost:3000/api/bookings/check-availability", {
-      location: pickupLocation,
-      pickupDate,
-      returnDate,
-    });
-    console.log(data)
+    const { data } = await axios.post(
+      "http://localhost:3000/api/bookings/check-availability",
+      {
+        location: pickupLocation,
+        pickupDate,
+        returnDate,
+      },
+    );
+    setFilteredCars(data.availableCars)
+    // console.log(data)
+    // console.log(data);
     if (data.success) {
       setFilteredCars(data.availableCars);
       if (setFilteredCars(data.availableCars.length === 0)) {
@@ -56,11 +72,11 @@ const Cars = () => {
   };
 
   useEffect(() => {
-    isSearchData && searchCarAvailablity;
+    isSearchData && searchCarAvailablity();
   }, []);
 
   useEffect(() => {
-    cars.length > 0 && !isSearchData && applyFilter;
+    cars.length > 0 && !isSearchData && applyFilter();
   }, [input, cars]);
 
   return (

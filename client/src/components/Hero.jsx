@@ -1,31 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { assets, cityList } from "../assets/assets";
-import { useAppContext } from "../context/AppContext";
-import { delay, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setReduxPickupDate, setReduxPickupLocation, setReduxReturnDate } from "../redux/bookingSlice";
+
 
 const Hero = () => {
+
+  const navigate = useNavigate();
+
   const [pickUpLocation, setPickUpLocation] = useState("");
-
-  // const { pickupDate, navigate, setPickupDate, returnDate, setReturenDate } =
-  //   useAppContext();
-
-    const navigate = useNavigate()
-
-    const [pickupDate , setPickupDate] = useState("")
-    const [returnDate ,setReturenDate] = useState("")
+  const [pickupDate, setPickupDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const dispatch = useDispatch()
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(
-      "/cars?pickupLocation=" +
-        pickUpLocation +
-        "&pickupDate=" +
-        pickupDate +
-        "&returnDate=" +
-        returnDate
-    );
+
+    const params = new URLSearchParams({
+      pickupLocation: pickUpLocation,
+      pickupDate: pickupDate,
+      returnDate: returnDate,
+    });
+
+    navigate(`/cars?${params.toString()}`);
   };
+
+  useEffect(() => { 
+    dispatch(setReduxPickupLocation(pickUpLocation))
+    dispatch(setReduxPickupDate(pickupDate))
+    dispatch(setReduxReturnDate(returnDate))
+  },[pickUpLocation,pickupDate,returnDate])
 
   return (
     <motion.div
@@ -33,14 +39,9 @@ const Hero = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
       className="h-screen flex flex-col items-center justify-center gap-14
-    bg-light text-center"
+      bg-light text-center"
     >
-      <h1
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="text-4xl md:text-5xl font-semibold"
-      >
+      <h1 className="text-4xl md:text-5xl font-semibold">
         Luxury Cars On Rent
       </h1>
 
@@ -50,14 +51,15 @@ const Hero = () => {
         transition={{ duration: 0.6, delay: 0.4 }}
         onSubmit={handleSearch}
         className="flex flex-col md:flex-row items-start md:items-center
-      justify-between p-6 rounded-lg md:rounded-full w-full max-w-80 md:max-w-200
-      bg-white shadow-[0px_8px_20px_rgba(0,0,0,0.1)]"
+        justify-between p-6 rounded-lg md:rounded-full w-full max-w-80 md:max-w-200
+        bg-white shadow-[0px_8px_20px_rgba(0,0,0,0.1)]"
       >
         <div
           className="flex flex-col md:flex-row items-start md:items-center
-        gap-10 min-md:ml-8"
+          gap-10 min-md:ml-8"
         >
-          <div className="flex flex-col items-start gap-2 ">
+          {/* Pickup Location */}
+          <div className="flex flex-col items-start gap-2">
             <select
               required
               value={pickUpLocation}
@@ -70,12 +72,14 @@ const Hero = () => {
                 </option>
               ))}
             </select>
+
             <p className="px-1 text-sm text-gray-500">
               {pickUpLocation ? pickUpLocation : "Please Select Location"}
             </p>
           </div>
-          {/* PickUp date Div */}
-          <div className="flex flex-col items-start gap-2 ">
+
+          {/* Pickup Date */}
+          <div className="flex flex-col items-start gap-2">
             <label htmlFor="pickup-date">Pick-up Date</label>
             <input
               value={pickupDate}
@@ -86,23 +90,26 @@ const Hero = () => {
               className="text-sm text-gray-500"
             />
           </div>
-          {/* Retuen date Div */}
-          <div className="flex flex-col items-start gap-2 ">
+
+          {/* Return Date */}
+          <div className="flex flex-col items-start gap-2">
             <label htmlFor="return-date">Return Date</label>
             <input
               value={returnDate}
-              onChange={(e) => setReturenDate(e.target.value)}
+              onChange={(e) => setReturnDate(e.target.value)}
               type="date"
               id="return-date"
               className="text-sm text-gray-500"
             />
           </div>
         </div>
+
+        {/* Search Button */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="flex items-center justify-center gap-1 px-9 py-3
-                    max-sm:mt-4 bg-black hover:bg-black-dull text-white rounded-full curson-pointer"
+          max-sm:mt-4 bg-black hover:bg-black-dull text-white rounded-full cursor-pointer"
         >
           <img
             src={assets.search_icon}
@@ -112,6 +119,7 @@ const Hero = () => {
           Search
         </motion.button>
       </motion.form>
+
       <motion.img
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const carSlice = createSlice({
+const ownerSlice = createSlice({
     name : "owner",
     initialState : {
         ownerData : null,
@@ -20,5 +20,5 @@ const carSlice = createSlice({
     }
 })
 
-export const {setOwnerCars , setOwnerData , setIsOwner} = carSlice.actions;
-export default carSlice.reducer;
+export const {setOwnerCars , setOwnerData , setIsOwner} = ownerSlice.actions;
+export default ownerSlice.reducer;
