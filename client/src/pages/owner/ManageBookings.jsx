@@ -25,7 +25,7 @@ const ManageBookings = () => {
 
   const changeBookingStatus = async (bookingId , status) => {
     try {
-      const {data} = await axios.get("http://localhost:3000/api/bookings/change-status" , {bookingId , status})
+      const {data} = await axios.post("http://localhost:3000/api/bookings/change-status" , {bookingId , status})
       data.success ? toast.success(data.message) : toast.error(data.message)
       fetchOwnerBookings()
     } catch (error) {
@@ -88,9 +88,9 @@ const ManageBookings = () => {
                       value={booking.status}
                       className="px-2 py-1.5 mt-1 text-gray-500 border border-borderColor rounded-md outline-noine"
                     >
-                      <option value="pending">Pending</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Confirmed">Confirmed</option>
+                      <option value="pending">pending</option>
+                      <option value="cancelled">cancelled</option>
+                      <option value="confirmed">confirmed</option>
                     </select>
                   ) : (
                     <span

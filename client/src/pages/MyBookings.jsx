@@ -11,13 +11,14 @@ const MyBookings = () => {
   const user = []
 
   const [bookings, setBookings] = useState([]);
-  // const currency = import.meta.env.VITE_CURRENCY;
+  const currency = import.meta.env.VITE_CURRENCY;
 
   const fetchMyBookings = async () => {
     try {
-      const { data } = await axios.get("/api/bookings/user");
+      const { data } = await axios.get("http://localhost:3000/api/bookings/my-bookings");
+      // console.log(data)
       if (data.success) {
-        setBookings(data.booking);
+        setBookings(data.bookings);
       } else {
         toast.error(data.message);
       }

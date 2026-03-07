@@ -46,6 +46,7 @@ export const createBooking = async (req, res) => {
   try {
     const _id  = req.id;
     const { car, pickupDate, returnDate } = req.body;
+    // console.log(pickupDate)
     const isAvailable = await checkAvailability(car, pickupDate, returnDate);
     if (!isAvailable) {
       return res
@@ -54,7 +55,7 @@ export const createBooking = async (req, res) => {
     }
 
     const carData = await Car.findById(car);
-    console.log(carData)
+    // console.log(carData)
 
     // calculate price based on pickup and return date
     const picked = new Date(pickupDate);
