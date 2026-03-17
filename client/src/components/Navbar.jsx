@@ -8,24 +8,34 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setUserData } from "../redux/userSlice";
 import { setIsOwner, setOwnerData } from "../redux/ownerSlice";
-import { changeRole } from "../middleware/api";
+import { changeRole as apiChangeRole } from "../middleware/api"; // Renamed to avoid naming conflicts if used later
 
 const Navbar = () => {
   const userdata = useSelector((state) => state.user.userData);
-  console.log(userdata);
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // NEW: State to control the confirmation modal
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const changeRole = async () => {
-    const { data } = await axios.post(
-      "http://localhost:3000/api/owner/change-role",
-      {},
-      { withCredentials: true },
-      toast.success("Now You Can List Your Cars"),
-    );
+    try {
+      const { data } = await axios.post(
+        "http://localhost:3000/api/owner/change-role",
+        {},
+        { withCredentials: true }
+      );
+      toast.success("Now You Can List Your Cars");
+      // Instantly update Redux so the button changes to "Dashboard"
+      dispatch(setIsOwner(true));
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to update role");
+    }
   };
 
   const owner = useSelector((state) => state.owner);
@@ -54,100 +64,134 @@ const Navbar = () => {
   };
 
   return (
-    <motion.div
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className={`flex items-center justify-between px-6 
-    md:px-16 lg:px-24 xl:px-32 py-4 text-gray-600 border-b
-    border-borderColor relative transitiona-all ${
-      location.pathname === "/" && "bg-light"
-    }`}
-    >
-      <Link to="/">
-        <motion.img
-          whileHover={{ scale: 1.05 }}
-          src={assets.logo}
-          alt="logo"
-          className="h-8"
-        />
-      </Link>
-
-      <div
-        className={`max-sm:fixed max-sm:h-screen max-sm-w-full max-sm:top-16
-      max-sm:border-t border-borderColor right-0 flex flex-col sm:flex-row
-      items-start sm:items-center gap-4 sm:gap-8 max-sm:p-4 transition-all duration-300 z-50 ${
-        location.pathname === "/" ? "bg-light" : "bg-white"
-      } ${open ? "max-sm:translate-x-0" : "max-sm:translate-x-full"} `}
+    <>
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className={`flex items-center justify-between px-6 
+      md:px-16 lg:px-24 xl:px-32 py-4 text-gray-600 border-b
+      border-borderColor relative transitiona-all ${
+        location.pathname === "/" && "bg-light"
+      }`}
       >
-        {menuLinks.map((link, index) => (
-          <Link key={index} to={link.path}>
-            {link.name}
-          </Link>
-        ))}
-
-        <div className="hidden lg:flex items-center text-sm gap-2 border border-borderColor px-3 rounded-full max-w-56">
-          <input
-            id="searchbar"
-            type="text"
-            className="py-1.5 w-full bg-transparent outline-none
-             placeholder-gray-500"
-            placeholder="Search products"
+        <Link to="/">
+          <motion.img
+            whileHover={{ scale: 1.05 }}
+            src={assets.logo}
+            alt="logo"
+            className="h-8"
           />
-          <img src={assets.search_icon} alt="search" />
-        </div>
+        </Link>
 
-        <div className="flex max-sm:flex-col items-start sm:items-center gap-6">
-          <button
-            onClick={() => (isOwner ? navigate("/owner") : changeRole())}
-            className="cursor-pointer"
-          >
-            {isOwner ? "Dashboard" : "List cars"}
-          </button>
+        <div
+          className={`max-sm:fixed max-sm:h-screen max-sm-w-full max-sm:top-16
+        max-sm:border-t border-borderColor right-0 flex flex-col sm:flex-row
+        items-start sm:items-center gap-4 sm:gap-8 max-sm:p-4 transition-all duration-300 z-50 ${
+          location.pathname === "/" ? "bg-light" : "bg-white"
+        } ${open ? "max-sm:translate-x-0" : "max-sm:translate-x-full"} `}
+        >
+          {menuLinks.map((link, index) => (
+            <Link key={index} to={link.path}>
+              {link.name}
+            </Link>
+          ))}
 
-          <button
-            onClick={handleLogout}
-            className="cursor-pointer px-8 py-2 bg-black
-                    hover:bg-primary-dull transition-all text-white rounded-lg"
-          >
-            {userdata ? "Logout" : "Login"}
-          </button>
+          <div className="hidden lg:flex items-center text-sm gap-2 border border-borderColor px-3 rounded-full max-w-56">
+            <input
+              id="searchbar"
+              type="text"
+              className="py-1.5 w-full bg-transparent outline-none
+               placeholder-gray-500"
+              placeholder="Search products"
+            />
+            <img src={assets.search_icon} alt="search" />
+          </div>
 
-          {/* Profile Avatar Button - Only visible when user is logged in */}
-          {userdata && (
+          <div className="flex max-sm:flex-col items-start sm:items-center gap-6">
             <button
-              onClick={() => navigate("/profile")}
-              className="cursor-pointer flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-all border border-gray-300 overflow-hidden"
-              title="Go to Profile"
+              // CHANGED: Open modal if not owner, instead of firing API directly
+              onClick={() => (isOwner ? navigate("/owner") : setShowConfirmModal(true))}
+              className="cursor-pointer font-medium hover:text-black transition-colors"
             >
-              {/* If the user has a profile picture in your DB, display it. Otherwise, show their first initial. */}
-              {userdata?.image ? (
-                <img
-                  src={userdata?.image}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-gray-600 font-bold text-lg uppercase">
-                  {/* Grabs the first letter of the user's name, or defaults to "U" if name isn't loaded */}
-                  {userdata.name ? userdata.name.charAt(0) : "U"}
-                </span>
-              )}
+              {isOwner ? "Dashboard" : "List cars"}
             </button>
-          )}
-        </div>
-      </div>
 
-      <button
-        className="sm:hidden cursor-pointer"
-        aria-label="Menu"
-        onClick={() => {
-          setOpen(!open);
-        }}
-      >
-        <img src={open ? assets.close_icon : assets.menu_icon} alt="menu" />
-      </button>
-    </motion.div>
+            <button
+              onClick={handleLogout}
+              className="cursor-pointer px-8 py-2 bg-black
+                      hover:bg-primary-dull transition-all text-white rounded-lg"
+            >
+              {userdata ? "Logout" : "Login"}
+            </button>
+
+            {/* Profile Avatar Button */}
+            {userdata && (
+              <button
+                onClick={() => navigate("/profile")}
+                className="cursor-pointer flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-all border border-gray-300 overflow-hidden"
+                title="Go to Profile"
+              >
+                {userdata?.image ? (
+                  <img
+                    src={userdata?.image}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-600 font-bold text-lg uppercase">
+                    {userdata.name ? userdata.name.charAt(0) : "U"}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <button
+          className="sm:hidden cursor-pointer"
+          aria-label="Menu"
+          onClick={() => {
+            setOpen(!open);
+          }}
+        >
+          <img src={open ? assets.close_icon : assets.menu_icon} alt="menu" />
+        </button>
+      </motion.div>
+
+      {/* NEW: Confirmation Modal for Becoming an Owner */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Become a Host</h3>
+            <p className="text-gray-600 mb-6">
+              Do you want to list your cars and become an owner on our platform?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  changeRole();
+                }}
+                className="px-6 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+              >
+                Yes, List Cars
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </>
   );
 };
 

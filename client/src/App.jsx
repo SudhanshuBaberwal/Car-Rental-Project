@@ -15,77 +15,111 @@ import { Toaster } from "react-hot-toast";
 import Signup from "./components/Signup";
 import VerifyEmail from "./components/VerifyEmail";
 import MainLayout from "./utils/MainLayout";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setUserData } from "./redux/userSlice";
 import { changeRole } from "./middleware/api";
 import { setIsOwner, setOwnerData } from "./redux/ownerSlice";
 import { setBoxCars } from "./redux/carSlice";
 import Profile from "./components/Profile";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import OwnerRoute from "./utils/OwnerRoute";
+import CarLoader from "./utils/PremiumCarLoader";
+axios.defaults.withCredentials = true;
 
 const App = () => {
-  axios.defaults.withCredentials = true;
-
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.userData);
+  const isOwner = useSelector((state) => state.owner.IsOwner);
+
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const fetchUser = async () => {
+    const initApp = async () => {
       try {
+        // ✅ Fetch user
         const { data } = await axios.get(
           "http://localhost:3000/api/user/getCurrentUser",
-          { withCredentials: true },
         );
-        // console.log(data)
+
         dispatch(setUserData(data.userData));
-      } catch (error) {
-        console.log(error);
+
+        // ✅ Fetch owner only if user exists
+        if (data.userData) {
+          try {
+            const ownerRes = await axios.get(
+              "http://localhost:3000/api/owner/get-owner-data",
+            );
+
+            dispatch(setOwnerData(ownerRes.data.owner));
+            dispatch(setIsOwner(true));
+          } catch {
+            dispatch(setIsOwner(false));
+          }
+        }
+      } catch {
+        dispatch(setUserData(null));
       }
-    };
-    const fetchOwner = async () => {
+
+      // ✅ Fetch cars (independent)
       try {
-        const { data } = await axios.get(
-          "http://localhost:3000/api/owner/get-owner-data",
-        );
-        // console.log(data)
-        dispatch(setOwnerData(data.owner));
-        dispatch(setIsOwner(true));
+        const res = await axios.get("http://localhost:3000/api/user/cars");
+        dispatch(setBoxCars(res.data.cars));
       } catch (error) {
-        console.log(error);
+        console.log("Error fetching cars");
       }
+
+      setLoading(false);
     };
-    const carData = async () => {
-      // e.preventDefault();
-      try {
-        const data = await axios.get("http://localhost:3000/api/user/cars");
-        // console.log(data);
-        // setCars(data.data.cars)
-        dispatch(setBoxCars(data.data.cars));
-      } catch (error) {}
-    };
-    carData();
-    fetchUser();
-    fetchOwner();
+
+    initApp();
   }, [dispatch]);
+
 
   return (
     <>
       <Toaster />
+
       <Routes>
-        {/* 🔥 MAIN LAYOUT (Navbar + Footer everywhere) */}
+        {/* ❌ Auth pages WITHOUT layout */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verifyEmail" element={<VerifyEmail />} />
-        <Route element={<MainLayout />}>
-          {/* Auth pages (Navbar + Footer INCLUDED) */}
 
-          {/* User pages */}
+        {/* ✅ ALL pages WITH Navbar + Footer */}
+        <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/cars" element={<Cars />} />
           <Route path="/car-details/:id" element={<CarDetails />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/profile" element={<Profile />} />
 
-          {/* Owner dashboard */}
-          <Route path="/owner" element={<Layout />}>
+          <Route
+            path="/my-bookings"
+            element={
+              <ProtectedRoute user={user}>
+                <MyBookings />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute user={user}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 🚗 Owner Routes */}
+          <Route
+            path="/owner"
+            element={
+              <ProtectedRoute user={user}>
+                <OwnerRoute isOwner={isOwner}>
+                  <Layout />
+                </OwnerRoute>
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Dashboard />} />
             <Route path="add-car" element={<AddCar />} />
             <Route path="manage-cars" element={<ManageCars />} />
