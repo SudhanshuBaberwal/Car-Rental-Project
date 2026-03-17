@@ -1,10 +1,16 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
+import { uploadOnCloudinary } from "../configs/imageKit.js";
 import jwt from "jsonwebtoken";
 import Car from "../models/car.model.js";
 import generateVerificationCode from "../utils/generateVerificationCode.js";
 import { generateToken } from "../utils/generateToken.js";
-import { passwordResetEmail, passwordResetSuccessEmail, sendWelcomeEmail, verificationEmail } from "../Emails/email.js";
+import {
+  passwordResetEmail,
+  passwordResetSuccessEmail,
+  sendWelcomeEmail,
+  verificationEmail,
+} from "../Emails/email.js";
 
 export const signup = async (req, res) => {
   try {
@@ -187,16 +193,14 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // send email for reset password
-    console.log(process.env.CLIENT_URL)
+    console.log(process.env.CLIENT_URL);
     const emailURL = `http://localhost:5173/reset-password/${resetToken}`;
     await passwordResetEmail(emailURL, email);
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Password Reset Email Sent Successfully",
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Password Reset Email Sent Successfully",
+    });
   } catch (error) {
     console.log("Error in forgotPassword Function : ", error);
     return res.status(500).json({ success: false, message: error.message });
@@ -244,33 +248,65 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-export const getCurrentUser = async (req , res) => {
-    try {
-        const user = req.id;
-        console.log(user)
-        if (!user){
-          return res.status(400).json({success : false, message : "Invalid Token Payload"})
-        }
-        const userData = await User.findById(user).select("-password")
-        if (!userData){
-          return res.status(400).json({success : false , message : "User Not Found"})
-        }
-        res.status(200).json({
-            success : true,
-            userData
-        })
-    } catch (error) {
-        console.log("Error in getUser data" , error.message);
-        return res.status(400).json({success : false , message : error.message})
-    }
-}
-
-export const getCars = async (req , res) => {
+export const getCurrentUser = async (req, res) => {
   try {
-    const cars = await Car.find({isAvaliable : true})
-    res.status(200).json({success : true , cars})
+    const user = req.id;
+    console.log(user);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Token Payload" });
+    }
+    const userData = await User.findById(user).select("-password");
+    if (!userData) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User Not Found" });
+    }
+    res.status(200).json({
+      success: true,
+      userData,
+    });
   } catch (error) {
-    console.log("Error in getCars function :"  , error.message)
-    return res.json({success : false , message : error.message})
+    console.log("Error in getUser data", error.message);
+    return res.status(400).json({ success: false, message: error.message });
   }
-}
+};
+
+export const getCars = async (req, res) => {
+  try {
+    const cars = await Car.find({ isAvaliable: true });
+    res.status(200).json({ success: true, cars });
+  } catch (error) {
+    console.log("Error in getCars function :", error.message);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const imageFile = req.file;
+    const id = req.id;
+    if (!imageFile) {
+      return res.status(400).json({ success: "No Image Uploaded" });
+    }
+    const user = await User.findById(id);
+    let image;
+    if (imageFile) {
+      image = await uploadOnCloudinary(req.file.path);
+    }
+    if (!image) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Image is Required" });
+    }
+    user.image = image;
+    await user.save();
+    return res
+      .status(200)
+      .json({ success: true, message: "Uploaded Successfully" , user });
+  } catch (error) {
+    console.log("Error in update Profile controller : ", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

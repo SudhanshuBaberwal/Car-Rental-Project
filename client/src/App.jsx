@@ -5,7 +5,6 @@ import Home from "./pages/Home";
 import CarDetails from "./pages/CarDetails";
 import Cars from "./pages/Cars";
 import MyBookings from "./pages/MyBookings";
-import Footer from "./components/Footer";
 import Layout from "./pages/owner/Layout";
 import Dashboard from "./pages/owner/Dashboard";
 import AddCar from "./pages/owner/AddCar";
@@ -13,7 +12,6 @@ import ManageCars from "./pages/owner/ManageCars";
 import ManageBookings from "./pages/owner/ManageBookings";
 import Login from "./components/Login";
 import { Toaster } from "react-hot-toast";
-import { useAppContext } from "./context/AppContext";
 import Signup from "./components/Signup";
 import VerifyEmail from "./components/VerifyEmail";
 import MainLayout from "./utils/MainLayout";
@@ -23,54 +21,59 @@ import { setUserData } from "./redux/userSlice";
 import { changeRole } from "./middleware/api";
 import { setIsOwner, setOwnerData } from "./redux/ownerSlice";
 import { setBoxCars } from "./redux/carSlice";
+import Profile from "./components/Profile";
 
 const App = () => {
+  axios.defaults.withCredentials = true;
 
-  axios.defaults.withCredentials = true
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const {data} = await axios.get("http://localhost:3000/api/user/getCurrentUser", {withCredentials: true})
+        const { data } = await axios.get(
+          "http://localhost:3000/api/user/getCurrentUser",
+          { withCredentials: true },
+        );
         // console.log(data)
-        dispatch(setUserData(data.userData))
+        dispatch(setUserData(data.userData));
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
     const fetchOwner = async () => {
       try {
-        const {data} = await axios.get("http://localhost:3000/api/owner/get-owner-data")
+        const { data } = await axios.get(
+          "http://localhost:3000/api/owner/get-owner-data",
+        );
         // console.log(data)
-        dispatch(setOwnerData(data.owner))
-        dispatch(setIsOwner(true))
+        dispatch(setOwnerData(data.owner));
+        dispatch(setIsOwner(true));
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
     const carData = async () => {
-          // e.preventDefault();
-          try {
-            const data = await axios.get("http://localhost:3000/api/user/cars");
-            // console.log(data);
-            // setCars(data.data.cars)
-            dispatch(setBoxCars(data.data.cars))
-          } catch (error) {}
-        };
-        carData();
-    fetchUser()
-    fetchOwner()
-  } , [dispatch])
-  
+      // e.preventDefault();
+      try {
+        const data = await axios.get("http://localhost:3000/api/user/cars");
+        // console.log(data);
+        // setCars(data.data.cars)
+        dispatch(setBoxCars(data.data.cars));
+      } catch (error) {}
+    };
+    carData();
+    fetchUser();
+    fetchOwner();
+  }, [dispatch]);
+
   return (
     <>
       <Toaster />
       <Routes>
         {/* 🔥 MAIN LAYOUT (Navbar + Footer everywhere) */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/verifyEmail" element={<VerifyEmail />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/verifyEmail" element={<VerifyEmail />} />
         <Route element={<MainLayout />}>
           {/* Auth pages (Navbar + Footer INCLUDED) */}
 
@@ -79,6 +82,7 @@ const App = () => {
           <Route path="/cars" element={<Cars />} />
           <Route path="/car-details/:id" element={<CarDetails />} />
           <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/profile" element={<Profile />} />
 
           {/* Owner dashboard */}
           <Route path="/owner" element={<Layout />}>

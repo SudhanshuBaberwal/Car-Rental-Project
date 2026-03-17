@@ -113,6 +113,7 @@ export default function VerifyEmailPage() {
        { withCredentials: true },
      );
      console.log(result)
+     navigate("/")
      dispatch(setUserData(result.data))
      setLoading(false)
      toast.success("Account Created Successfully")

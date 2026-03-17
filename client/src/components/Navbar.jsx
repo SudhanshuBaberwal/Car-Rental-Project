@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { assets, menuLinks } from "../assets/assets";
-import { useAppContext } from "../context/AppContext";
+// import { useAppContext } from "../context/AppContext"; // Keeping your commented code untouched
 import toast from "react-hot-toast";
 import { animate, motion } from "motion/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,10 +11,8 @@ import { setIsOwner, setOwnerData } from "../redux/ownerSlice";
 import { changeRole } from "../middleware/api";
 
 const Navbar = () => {
-  // const { setShowLogin, user, logout, isOwner, axios, setIsOwner } =
-  //   useAppContext();
-
   const userdata = useSelector((state) => state.user.userData);
+  console.log(userdata);
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,7 +29,6 @@ const Navbar = () => {
   };
 
   const owner = useSelector((state) => state.owner);
-  // console.log(owner)
   const isOwner = owner.IsOwner;
 
   const handleLogout = async (e) => {
@@ -107,6 +104,7 @@ const Navbar = () => {
           >
             {isOwner ? "Dashboard" : "List cars"}
           </button>
+
           <button
             onClick={handleLogout}
             className="cursor-pointer px-8 py-2 bg-black
@@ -114,6 +112,29 @@ const Navbar = () => {
           >
             {userdata ? "Logout" : "Login"}
           </button>
+
+          {/* Profile Avatar Button - Only visible when user is logged in */}
+          {userdata && (
+            <button
+              onClick={() => navigate("/profile")}
+              className="cursor-pointer flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition-all border border-gray-300 overflow-hidden"
+              title="Go to Profile"
+            >
+              {/* If the user has a profile picture in your DB, display it. Otherwise, show their first initial. */}
+              {userdata?.image ? (
+                <img
+                  src={userdata?.image}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-600 font-bold text-lg uppercase">
+                  {/* Grabs the first letter of the user's name, or defaults to "U" if name isn't loaded */}
+                  {userdata.name ? userdata.name.charAt(0) : "U"}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
