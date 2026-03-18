@@ -129,16 +129,13 @@ export const logout = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
 export const verifyEmail = async (req, res) => {
-  const { verificationCode } = req.body;
   try {
-    // console.log(verificationCode)
+    const { verificationCode } = req.body;
+    console.log(verificationCode)
     const user = await User.findOne({
       verificationToken: String(verificationCode),
-      // verificationTokenExpiresAt: { $gt: new Date() },
     });
-    // console.log(user)
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -151,19 +148,17 @@ export const verifyEmail = async (req, res) => {
     await user.save();
 
     await sendWelcomeEmail(user.email, user.fullname);
+
     return res.status(200).json({
       success: true,
-      message: "User Verified Successfully",
-      user: {
-        ...user._doc,
-        password: undefined,
-      },
+      message: "Email verified successfully",
+      user,
     });
   } catch (error) {
-    console.log("Error in  verifyEmail function : ", error);
-    return res.status(500).json({
+    console.log(error);
+    res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Server error",
     });
   }
 };
@@ -304,7 +299,7 @@ export const updateProfile = async (req, res) => {
     await user.save();
     return res
       .status(200)
-      .json({ success: true, message: "Uploaded Successfully" , user });
+      .json({ success: true, message: "Uploaded Successfully", user });
   } catch (error) {
     console.log("Error in update Profile controller : ", error);
     return res.status(500).json({ success: false, message: error.message });

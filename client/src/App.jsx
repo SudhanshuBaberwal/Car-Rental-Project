@@ -24,7 +24,6 @@ import { setBoxCars } from "./redux/carSlice";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import OwnerRoute from "./utils/OwnerRoute";
-import CarLoader from "./utils/PremiumCarLoader";
 axios.defaults.withCredentials = true;
 
 const App = () => {

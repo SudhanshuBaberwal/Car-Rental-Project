@@ -3,8 +3,8 @@ import { gsap } from "gsap";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
-import {useDispatch} from "react-redux"
-import setUserData from "../redux/userSlice"
+import { useDispatch, useSelector } from "react-redux";
+import {setUserData} from "../redux/userSlice";
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
@@ -15,10 +15,9 @@ export default function VerifyEmailPage() {
   const scope = useRef(null);
   const inputsRef = useRef([]);
 
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
 
-  const dispatch = useDispatch()
-  
-  
   useEffect(() => {
     let ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
@@ -104,23 +103,32 @@ export default function VerifyEmailPage() {
   };
 
   const handleSubmit = async (e) => {
-   try {
-     e.preventDefault();
-     setLoading(true);
-     const result = await axios.post(
-       "http://localhost:3000/api/user/verifyEmail",
-       { verificationCode: otp },
-       { withCredentials: true },
-     );
-     console.log(result)
-     navigate("/")
-     dispatch(setUserData(result.data))
-     setLoading(false)
-     toast.success("Account Created Successfully")
-   } catch (error) {
-    console.log(error)
-    toast.error(error)
-   }
+    e.preventDefault();
+    setLoading(true);
+    const code = otp.join("")
+    console.log(code)
+    console.log(typeof code)
+    try {
+      const result = await axios.post(
+        "http://localhost:3000/api/user/verifyEmail",
+        { verificationCode: code },
+      );
+      console.log(result.data.user)
+      dispatch(setUserData(result.data.user)); // update state first
+      toast.success("Account Created Successfully");
+
+      navigate("/"); // then navigate
+    } catch (error) {
+      console.log(error);
+
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Something went wrong",
+      );
+    } finally {
+      setLoading(false); // always stop loading
+    }
   };
 
   return (

@@ -9,7 +9,6 @@ import { useEffect } from "react";
 import { motion } from "motion/react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setBoxCars } from "../redux/carSlice";
 
 const Cars = () => {
   const [input, setInput] = useState("");

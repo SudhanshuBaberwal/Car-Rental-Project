@@ -4,14 +4,21 @@ import User from "../models/user.model.js"
 
 
 export const checkAvailability = async (car, pickupDate, returnDate) => {
-  const booking = await Booking.find({
-    car,
-    pickupDate: { $lte: returnDate },
-    returnDate: { $gte: pickupDate },
-  });
-  return booking.length === 0;
-};
+  const start = new Date(pickupDate);
+  const end = new Date(returnDate);
 
+  if (start > end) {
+    throw new Error("Pickup date must be before return date");
+  }
+
+  const existingBooking = await Booking.findOne({
+    car: car._id || car,
+    pickupDate: { $lte: end },
+    returnDate: { $gte: start },
+  });
+
+  return !existingBooking; // true = available
+};
 
 export const checkAvailabilityOfCar = async (req, res) => {
   try {
