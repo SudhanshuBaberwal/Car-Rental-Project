@@ -66,11 +66,11 @@ const ModernInput = ({
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder={placeholder}
-          className="w-full bg-white/[0.01] border border-white/5 px-4 py-4 text-sm text-white outline-none transition-all placeholder:text-white/5"
+          className="w-full bg-white/1 border border-white/5 px-4 py-4 text-sm text-white outline-none transition-all placeholder:text-white/5"
         />
         <div
           ref={lineRef}
-          className="absolute bottom-0 left-0 h-[2px] w-0 bg-cyan-400"
+          className="absolute bottom-0 left-0 h-0.5 w-0 bg-cyan-400"
         />
       </div>
     </div>
@@ -130,7 +130,7 @@ const PasswordInput = ({ label, value, onChange, placeholder }) => {
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder={placeholder}
-          className="w-full bg-white/[0.01] border border-white/5 px-4 py-4 text-sm text-white outline-none transition-all placeholder:text-white/5 pr-12"
+          className="w-full bg-white/1 border border-white/5 px-4 py-4 text-sm text-white outline-none transition-all placeholder:text-white/5 pr-12"
         />
         <button
           type="button"
@@ -141,7 +141,7 @@ const PasswordInput = ({ label, value, onChange, placeholder }) => {
         </button>
         <div
           ref={lineRef}
-          className="absolute bottom-0 left-0 h-[2px] w-0 bg-cyan-400"
+          className="absolute bottom-0 left-0 h-0.5 w-0 bg-cyan-400"
         />
       </div>
     </div>
@@ -159,9 +159,7 @@ export default function Login() {
   const formBoxRef = useRef(null);
   const cursorRef = useRef(null);
   const particlesRef = useRef(null);
-  const dispatch = useDispatch()
-
-
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -210,21 +208,20 @@ export default function Login() {
     try {
       if (!email || !password) return toast.error("Credentials required.");
       setLoading(true);
-  
+
       const result = await axios.post(
         "http://localhost:3000/api/user/login",
         { email, password },
         { withCredentials: true },
       );
-  
-      console.log(result)
-      console.log(result.data)
-      dispatch(setUserData(result.data))
-  
+
+      console.log(result);
+      console.log(result.data);
+      dispatch(setUserData(result.data));
+
       setTimeout(() => {
         setLoading(false);
-        toast.success("Welcome back, Commander.");
-  
+
         // Exit Animation
         const tl = gsap.timeline();
         tl.to(sidePanelRef.current, {
@@ -239,8 +236,9 @@ export default function Login() {
             onComplete: () => navigate("/"),
           });
       }, 1500);
+      toast.success("Welcome back, Commander.");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -263,7 +261,7 @@ export default function Login() {
       {/* Cursor & Particles */}
       <div
         ref={cursorRef}
-        className="fixed w-8 h-8 border border-cyan-400/50 rounded-full pointer-events-none z-[9999] hidden lg:block -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
+        className="fixed w-8 h-8 border border-cyan-400/50 rounded-full pointer-events-none z-9999 hidden lg:block -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
       />
       <div
         ref={particlesRef}
@@ -287,12 +285,12 @@ export default function Login() {
           ref={sidePanelRef}
           className="hidden lg:flex lg:col-span-5 bg-[#080808] border-r border-white/5 flex-col justify-between p-20 relative overflow-hidden"
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-900/10 blur-[150px] rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-cyan-900/10 blur-[150px] rounded-full" />
 
           <div className="relative z-10">
             <div className="stagger-text flex items-center gap-3 mb-24">
               <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <div className="w-3 h-3 bg-black rounded-[2px]" />
+                <div className="w-3 h-3 bg-black rounded-xs" />
               </div>
               <span className="text-lg font-bold tracking-widest uppercase">
                 Nexus OS
@@ -317,7 +315,7 @@ export default function Login() {
 
         {/* RIGHT PANEL: Login Form */}
         <div className="lg:col-span-7 flex items-center justify-center p-8 lg:p-24 relative bg-[#050505]">
-          <div ref={formBoxRef} className="w-full max-w-[420px]">
+          <div ref={formBoxRef} className="w-full max-w-105">
             <div className="mb-12">
               <h2 className="text-4xl font-bold tracking-tighter mb-3">
                 Login
@@ -355,7 +353,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group relative w-full h-[60px] bg-white text-black font-black uppercase tracking-[0.2em] text-xs rounded-xl overflow-hidden transition-all active:scale-95 disabled:opacity-50"
+                  className="group relative w-full h-15 bg-white text-black font-black uppercase tracking-[0.2em] text-xs rounded-xl overflow-hidden transition-all active:scale-95 disabled:opacity-50"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {loading ? "Authenticating..." : "Authenticate"}
@@ -381,8 +379,8 @@ export default function Login() {
         </div>
       </div>
 
-     <style>
-  {`
+      <style>
+        {`
     .stroke-text {
       -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
     }
@@ -391,7 +389,7 @@ export default function Login() {
       transition-timing-function: cubic-bezier(0.9, 0, 0.1, 1);
     }
   `}
-</style>
+      </style>
     </div>
   );
 }

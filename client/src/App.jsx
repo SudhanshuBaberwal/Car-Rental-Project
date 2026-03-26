@@ -24,6 +24,7 @@ import { setBoxCars } from "./redux/carSlice";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import OwnerRoute from "./utils/OwnerRoute";
+import ForgotPassword from "./components/ForgotPassword";
 axios.defaults.withCredentials = true;
 
 const App = () => {
@@ -83,6 +84,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verifyEmail" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ✅ ALL pages WITH Navbar + Footer */}
         <Route element={<MainLayout />}>

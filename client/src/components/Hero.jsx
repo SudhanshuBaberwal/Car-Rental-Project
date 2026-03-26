@@ -56,7 +56,7 @@ const Hero = () => {
       >
         <div
           className="flex flex-col md:flex-row items-start md:items-center
-          gap-10 min-md:ml-8"
+          gap-10 md:ml-8"
         >
           {/* Pickup Location */}
           <div className="flex flex-col items-start gap-2">
